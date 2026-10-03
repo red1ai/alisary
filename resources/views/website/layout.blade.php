@@ -14,6 +14,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ $title ?? $settings->seo_title ?? $settings->site_name }}</title>
     <meta name="description" content="{{ $description ?? $settings->seo_description ?? '' }}">
+    @if (! empty($meta))
+        <meta property="og:site_name" content="{{ $settings->site_name }}">
+        <meta property="og:locale" content="ar_AR">
+        <meta property="og:type" content="{{ $meta['type'] }}">
+        <meta property="og:title" content="{{ $meta['title'] }}">
+        <meta property="og:description" content="{{ $meta['description'] }}">
+        <meta name="twitter:card" content="{{ $meta['image'] ? 'summary_large_image' : 'summary' }}">
+        <meta name="twitter:title" content="{{ $meta['title'] }}">
+        <meta name="twitter:description" content="{{ $meta['description'] }}">
+        @if ($meta['url'])
+            <link rel="canonical" href="{{ $meta['url'] }}">
+            <meta property="og:url" content="{{ $meta['url'] }}">
+        @endif
+        @if ($meta['image'])
+            <meta property="og:image" content="{{ $meta['image'] }}">
+            <meta name="twitter:image" content="{{ $meta['image'] }}">
+        @endif
+    @endif
     <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
     <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicon-16x16.png') }}">
     <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
