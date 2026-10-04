@@ -196,3 +196,29 @@ it('migrates only the four published openings and leaves every other opening unt
         ->and($other->form_sections)->toBe($otherSections)
         ->and(collect($other->fields())->where('key', 'expected_salary'))->toHaveCount(0);
 });
+
+it('lists the four openings in the requested order and corrects the manager-teacher title', function () {
+    publishBranchOpenings();
+    $other = CareerOpening::factory()->create(['published_at' => now()->subDays(5), 'status' => ListingStatus::Published, 'title' => 'معلم مدير تجريبي']);
+    CareerOpening::where('slug', 'domain-one-teacher-udhaibah')->update(['title' => 'معلم مدير — الحلقة الأولى']);
+
+    $migration = require database_path('migrations/'.collect(glob(database_path('migrations/*order_branch_openings_and_fix_manager_teacher_title.php')))->map(fn ($p) => basename($p))->first());
+    $migration->up();
+
+    $titles = [
+        'مديرة فرع — الحلقة الأولى — فرع إبراء',
+        'مديرة فرع — تعليم مبكر — فرع بوشر',
+        'معلمة مديرة — الحلقة الأولى',
+        'معلمة لغة إنجليزية — تعليم مبكر — فرع بوشر',
+    ];
+
+    $this->get(route('jobs.index'))
+        ->assertSuccessful()
+        ->assertSeeInOrder($titles)
+        ->assertDontSee('معلم مدير —', false);
+
+    $this->get(route('jobs.show', 'domain-one-teacher-udhaibah'))->assertSee('معلمة مديرة')->assertDontSee('معلم مدير ', false);
+
+    expect($other->fresh()->title)->toBe('معلم مدير تجريبي')
+        ->and($other->fresh()->published_at->isSameDay(now()->subDays(5)))->toBeTrue();
+});
