@@ -36,13 +36,29 @@ class WebsiteController extends Controller
         ]);
     }
 
+    /**
+     * Openings listed first on /jobs, in this order; every other opening follows by published_at.
+     *
+     * @var array<int, string>
+     */
+    private const PINNED_OPENING_SLUGS = [
+        'cycle-one-manager-ibra',
+        'early-ed-manager-bawshar',
+        'domain-one-teacher-udhaibah',
+        'english-teacher-bawshar',
+    ];
+
     public function jobs(GeneralSettings $settings): View
     {
         $openings = CareerOpening::query()
             ->with(['company', 'organization'])
             ->latest('published_at')
+            ->orderByDesc('id')
             ->get()
             ->filter(fn (CareerOpening $opening): bool => $opening->isPublished())
+            ->sortBy(fn (CareerOpening $opening): int => array_search($opening->slug, self::PINNED_OPENING_SLUGS, true) !== false
+                ? array_search($opening->slug, self::PINNED_OPENING_SLUGS, true)
+                : count(self::PINNED_OPENING_SLUGS))
             ->values();
 
         $organizations = $openings

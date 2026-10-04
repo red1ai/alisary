@@ -222,3 +222,31 @@ it('lists the four openings in the requested order and corrects the manager-teac
     expect($other->fresh()->title)->toBe('معلم مدير تجريبي')
         ->and($other->fresh()->published_at->isSameDay(now()->subDays(5)))->toBeTrue();
 });
+
+it('pins the four openings in the requested order on /jobs whatever their published_at', function (?string $publishedAt) {
+    CareerOpening::query()->update(['status' => ListingStatus::Published, 'published_at' => $publishedAt]);
+
+    $newer = CareerOpening::factory()->create(['title' => 'وظيفة أحدث', 'status' => ListingStatus::Published, 'published_at' => now()->subMinute()]);
+    $older = CareerOpening::factory()->create(['title' => 'وظيفة أقدم', 'status' => ListingStatus::Published, 'published_at' => now()->subDays(3)]);
+
+    $this->get(route('jobs.index'))->assertSuccessful()->assertSeeInOrder([
+        'مديرة فرع — الحلقة الأولى — فرع إبراء',
+        'مديرة فرع — تعليم مبكر — فرع بوشر',
+        'معلمة مجال أول — الحلقة الأولى — فرع العذيبة',
+        'معلمة لغة إنجليزية — تعليم مبكر — فرع بوشر',
+        'وظيفة أحدث',
+        'وظيفة أقدم',
+    ]);
+})->with([
+    'null published_at' => [null],
+    'equal published_at' => ['2026-10-04 10:10:48'],
+]);
+
+it('keeps unpublished openings off /jobs while pinning the rest', function () {
+    CareerOpening::query()->update(['status' => ListingStatus::Published, 'published_at' => null]);
+    CareerOpening::where('slug', 'cycle-one-manager-ibra')->update(['status' => ListingStatus::Draft]);
+
+    $this->get(route('jobs.index'))
+        ->assertDontSee('مديرة فرع — الحلقة الأولى — فرع إبراء')
+        ->assertSeeInOrder(['فرع بوشر', 'فرع العذيبة', 'فرع بوشر']);
+});
