@@ -54,3 +54,15 @@ it('stores the CV privately and confirms the attachment without sending mail', f
         ->get('/jobs/'.$opening->slug)
         ->assertSee('تم إرفاق ملفاتك بنجاح');
 });
+
+it('lists published career openings on /jobs linking to their own pages without an application form', function () {
+    $published = CareerOpening::factory()->create(['title' => 'وظيفة منشورة للاختبار']);
+    $draft = CareerOpening::factory()->draft()->create(['title' => 'وظيفة مسودة للاختبار']);
+
+    $this->get('/jobs')
+        ->assertSuccessful()
+        ->assertSee('وظيفة منشورة للاختبار')
+        ->assertSee(route('jobs.show', $published), false)
+        ->assertDontSee('وظيفة مسودة للاختبار')
+        ->assertDontSee('id="apply-form"', false);
+});

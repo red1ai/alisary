@@ -54,24 +54,15 @@ function validJobApplicationPayload(Company $company, JobListing $jobListing, ar
     ], $overrides);
 }
 
-it('stores a job application, shows its reference number, and locks the submit button', function () {
+it('stores a job application and no longer renders the form on the jobs page', function () {
     Mail::fake();
 
     $company = Company::factory()->create();
     $jobListing = jobApplicationListing($company);
 
-    $jobsPage = $this->get(route('jobs.index'))
+    $this->get(route('jobs.index'))
         ->assertSuccessful()
-        ->assertSee('data-job-application-form', false)
-        ->assertSee('data-phone-controls', false)
-        ->assertSee('sm:grid-cols-[10rem_minmax(0,1fr)]', false)
-        ->assertSee('aria-label="رقم الهاتف بدون مفتاح الدولة"', false)
-        ->assertSee('data-job-application-submit', false)
-        ->assertSee('value="+968" selected', false)
-        ->assertDontSee('aria-disabled="true"', false);
-
-    expect($jobsPage->getContent())
-        ->not->toMatch('/<button\b(?=[^>]*\bdata-job-application-submit\b)(?=[^>]*\sdisabled(?:\s|=|\/?>))[^>]*>/');
+        ->assertDontSee('data-job-application-form', false);
 
     $response = $this->from(route('jobs.index'))->post(
         route('jobs.apply.unified'),
@@ -83,15 +74,6 @@ it('stores a job application, shows its reference number, and locks the submit b
     $response->assertRedirect(route('jobs.index').'#apply-form')
         ->assertSessionHas('application_success', true)
         ->assertSessionHas('application_reference_number', $application->reference_number);
-
-    $successPage = $this->get(route('jobs.index'))
-        ->assertSuccessful()
-        ->assertSee('aria-disabled="true"', false)
-        ->assertSee('تم إرسال الطلب')
-        ->assertSee($application->reference_number);
-
-    expect($successPage->getContent())
-        ->toMatch('/<button\b(?=[^>]*\bdata-job-application-submit\b)(?=[^>]*\sdisabled(?:\s|=|\/?>))[^>]*>/');
 
     expect($application)
         ->full_name->toBe('John Doe')
@@ -268,7 +250,7 @@ it('validates contact, numeric, gender, and pivotal question fields', function (
     'missing compelling reason' => ['q_compelling_reason', null],
 ]);
 
-it('renders a validation summary and messages beside every invalid field', function () {
+it('rejects every invalid field with validation errors', function () {
     Mail::fake();
 
     $company = Company::factory()->create();
@@ -291,51 +273,28 @@ it('renders a validation summary and messages beside every invalid field', funct
 
     $response->assertRedirect(route('jobs.index').'#apply-form');
 
-    $page = $this->followRedirects($response);
-
-    $page
-        ->assertSuccessful()
-        ->assertSee('data-validation-summary', false)
-        ->assertSee('تعذّر إرسال الطلب. يرجى مراجعة الحقول التالية:')
-        ->assertSee('data-validation-error-for="country"', false)
-        ->assertSee('data-validation-error-for="ready_date"', false)
-        ->assertSee('data-validation-error-for="years_experience"', false)
-        ->assertSee('data-validation-error-for="previous_institution"', false)
-        ->assertSee('data-validation-error-for="previous_role"', false)
-        ->assertSee('data-validation-error-for="cv_link"', false)
-        ->assertSee('data-validation-error-for="cv"', false)
-        ->assertSee('data-validation-error-for="q_compelling_reason"', false)
-        ->assertSee('data-validation-error-for="consent_accurate"', false)
-        ->assertSee('data-validation-error-for="consent_ai"', false);
+    $response->assertSessionHasErrors([
+        'country',
+        'ready_date',
+        'years_experience',
+        'previous_institution',
+        'previous_role',
+        'cv_link',
+        'q_compelling_reason',
+        'consent_accurate',
+        'consent_ai',
+    ]);
 });
 
-it('renders the requested residence, institution, and experience dropdowns', function () {
+it('does not render the application form on the jobs page', function () {
     $company = Company::factory()->create(['name' => 'مؤسسة الاختبار']);
     jobApplicationListing($company);
 
-    $response = $this->get(route('jobs.index'))->assertSuccessful();
-    $content = $response->getContent();
-
-    $response
-        ->assertSee('name="country"', false)
-        ->assertSee('value="OM" selected', false)
-        ->assertSee('عُمان')
-        ->assertSee('name="previous_institution"', false)
-        ->assertSee('مؤسسة الاختبار')
-        ->assertSee('name="years_experience"', false)
-        ->assertSee('enctype="multipart/form-data"', false)
-        ->assertSee('name="cv_link"', false)
-        ->assertSee('name="cv"', false)
-        ->assertSee('accept=".pdf,.doc,.docx', false)
-        ->assertSee('من ١ إلى ٣')
-        ->assertSee('من ٤ إلى ٧')
-        ->assertSee('من ٨ إلى ١٠')
-        ->assertSee('أكثر من ١٠ سنوات')
-        ->assertSee('placeholder="300"', false);
-
-    expect(substr_count($content, 'name="q_compelling_reason"'))->toBe(1)
-        ->and(strpos($content, 'name="q_compelling_reason"'))
-        ->toBeLessThan(strpos($content, 'name="company_id"'));
+    $this->get(route('jobs.index'))
+        ->assertSuccessful()
+        ->assertDontSee('name="country"', false)
+        ->assertDontSee('name="cv_link"', false)
+        ->assertDontSee('id="apply-form"', false);
 });
 
 it('uses Oman as the default phone country code', function () {

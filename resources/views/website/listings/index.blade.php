@@ -18,7 +18,7 @@
                 </h1>
                 <p class="mx-auto mt-6 max-w-3xl text-lg leading-loose text-alisary-soft">
                     مهامُّ كلِّ وظيفةٍ وشروطُها ومؤشّرُ نجاحها معلنةٌ من أوّل نظرة، وراتبُك المتوقَّع نسألك عنه بوضوحٍ
-                    واحترام. ابحث عن دورك في مؤسستك وفرعك الأقرب، وقدّم باستمارةٍ واحدةٍ تُملأ مرّة، ونعِدُك بالردّ.
+                    واحترام. ابحث عن دورك في مؤسستك وفرعك الأقرب، وافتح صفحة الوظيفة لتقدّم بنموذجها الخاص، ونعِدُك بالردّ.
                 </p>
 
                 <div class="mt-6 flex flex-wrap justify-center gap-3 text-sm text-alisary-soft">
@@ -26,10 +26,10 @@
                         <b class="text-alisary-deep">{{ $listings->count() }}</b> وظيفة معلنة
                     </span>
                     <span class="rounded-full border border-alisary-green/15 bg-white/70 px-4 py-2">
-                        <b class="text-alisary-deep">{{ ($companies ?? collect())->count() }}</b> مؤسسات
+                        <b class="text-alisary-deep">{{ $organizations->count() }}</b> مؤسسات
                     </span>
                     <span class="rounded-full border border-alisary-green/15 bg-white/70 px-4 py-2">
-                        <b class="text-alisary-deep">{{ ($jobFamilies ?? collect())->count() }}</b> مسارات
+                        <b class="text-alisary-deep">{{ $listings->pluck('category')->filter()->unique()->count() }}</b> مسارات
                     </span>
                 </div>
 
@@ -37,10 +37,6 @@
                     <a href="#vacancies"
                         class="inline-flex items-center gap-2 rounded-full bg-alisary-green px-8 py-4 font-bold text-white transition hover:bg-alisary-deep">
                         تصفّح الوظائف الشاغرة
-                    </a>
-                    <a href="#apply-form"
-                        class="inline-flex items-center gap-2 rounded-full border border-alisary-green bg-transparent px-8 py-4 font-bold text-alisary-deep transition hover:bg-alisary-green hover:text-white">
-                        قدّم مباشرةً
                     </a>
                 </div>
 
@@ -104,7 +100,7 @@
                     </label> --}}
                 </div>
 
-                {{-- Filter Chips (Only for Jobs) --}}
+                {{-- Organization filter chips --}}
                 <div class="mb-4 flex flex-wrap justify-center gap-3">
                     <button type="button" data-filter="all"
                         class="filter-btn flex cursor-pointer items-center gap-2 rounded-full border border-alisary-green/20 bg-white px-5 py-2.5 font-bold text-alisary-deep ring-2 ring-alisary-gold transition hover:border-alisary-gold"
@@ -112,40 +108,33 @@
                         <span class="size-2.5 rounded-full bg-alisary-gold"></span>
                         الكل
                     </button>
-                    @foreach ($companies ?? [] as $company)
-                        <button type="button" data-filter="company-{{ $company->id }}"
-                            data-company-slug="{{ $company->slug }}"
-                            @if ($company->slug === 'g-reader-school') data-school-company-filter="company-{{ $company->id }}" @endif
+                    @foreach ($organizations as $organizationName => $organizationKey)
+                        <button type="button" data-filter="{{ $organizationKey }}"
                             class="filter-btn flex cursor-pointer items-center gap-2 rounded-full border border-alisary-green/20 bg-white px-5 py-2.5 font-bold text-alisary-deep transition hover:border-alisary-gold"
-                            onclick="filterJobs('company-{{ $company->id }}')">
-                            <span class="size-2.5 rounded-full"
-                                style="background-color: {{ $company->brand_color ?? '#1C463C' }}"></span>
-                            {{ $company->name }}
+                            onclick="filterJobs('{{ $organizationKey }}')">
+                            <span class="size-2.5 rounded-full bg-alisary-green"></span>
+                            {{ $organizationName }}
                         </button>
                     @endforeach
                 </div>
 
-                @if (($jobFamilies ?? collect())->isNotEmpty())
-                    <div class="mb-3 flex flex-wrap justify-center gap-2">
-                        <button type="button" data-family-filter="all"
-                            class="family-filter-btn rounded-full border border-alisary-green/15 bg-alisary-deep px-4 py-2 text-sm font-bold text-white transition hover:border-alisary-gold"
-                            onclick="filterJobFamily('all')">
-                            كل المسارات
+                <div class="mb-3 flex flex-wrap justify-center gap-2">
+                    <button type="button" data-family-filter="all"
+                        class="family-filter-btn rounded-full border border-alisary-green/15 bg-alisary-deep px-4 py-2 text-sm font-bold text-white transition hover:border-alisary-gold"
+                        onclick="filterJobFamily('all')">
+                        كل المسارات
+                    </button>
+                    @foreach ($categories as $category)
+                        <button type="button" data-family-filter="{{ $category->value }}"
+                            class="family-filter-btn rounded-full border border-alisary-green/15 bg-white px-4 py-2 text-sm font-bold text-alisary-deep transition hover:border-alisary-gold"
+                            onclick="filterJobFamily('{{ $category->value }}')">
+                            {{ $category->label() }}
                         </button>
-                        @foreach ($jobFamilies as $jobFamily)
-                            <button type="button" data-family-filter="family-{{ $jobFamily->id }}"
-                                class="family-filter-btn rounded-full border border-alisary-green/15 bg-white px-4 py-2 text-sm font-bold text-alisary-deep transition hover:border-alisary-gold"
-                                onclick="filterJobFamily('family-{{ $jobFamily->id }}')">
-                                {{ $jobFamily->name }}
-                            </button>
-                        @endforeach
-                    </div>
-                @endif
+                    @endforeach
+                </div>
 
-                @if (($schoolBranchOptions ?? collect())->isNotEmpty() && $schoolCompany !== null)
-                    <div id="school-branch-filter" data-school-branch-filter
-                        data-school-company-filter="company-{{ $schoolCompany->id }}"
-                        class="mb-3 hidden justify-center">
+                @if ($schoolBranchOptions->isNotEmpty() && $schoolOrganizationKey !== null)
+                    <div id="school-branch-filter" data-school-branch-filter class="mb-3 hidden justify-center">
                         <label class="block w-full max-w-xs">
                             <span class="sr-only">فرع المدرسة</span>
                             <select id="schoolBranchSelect" onchange="filterJobBranch(this.value)"
@@ -165,136 +154,113 @@
                 <div id="jobs-count-line" class="mb-6 text-center text-sm text-alisary-soft"></div>
             @endif
 
-            <div class="grid gap-6 md:grid-cols-2">
-                @forelse ($listings as $listing)
-                    @php
-                        $organization = $isJob ? $listing->company : $listing->contractor;
-                        $deadline = $isJob ? $listing->expires_at : $listing->last_day_to_apply;
-                        $route = $isJob ? '#' : route('tenders.show', $listing);
-                        $searchText = $isJob
-                            ? collect([
-                                $listing->title,
-                                $listing->job_code,
-                                $listing->excerpt,
-                                $organization?->name,
-                                $listing->jobFamily?->name,
-                                $listing->job_level?->label(),
-                                $listing->type?->label(),
-                                $listing->locationsLabel(),
+            @if ($isJob)
+                <div class="grid gap-6 md:grid-cols-2">
+                    @forelse ($listings as $opening)
+                        @php
+                            $organizationName = $opening->organizationName() ?? 'مجموعة العيسري';
+                            $organizationKey = $organizations->get($organizationName);
+                            $openingUrl = route('jobs.show', $opening);
+                            $openingSummary = filled($opening->summary) ? $opening->summary : $opening->subtitle;
+                            $searchText = collect([
+                                $opening->title,
+                                $opening->subtitle,
+                                $opening->summary,
+                                $organizationName,
+                                $opening->category?->label(),
+                                $opening->location?->label(),
                             ])
                                 ->filter()
-                                ->implode(' ')
-                            : '';
-                    @endphp
+                                ->implode(' ');
+                        @endphp
 
-                    @if ($isJob)
-                        {{-- New Job Card Format --}}
                         <div class="group flex flex-col justify-between overflow-hidden rounded-2xl border border-alisary-green/10 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl hover:shadow-alisary-green/5"
-                            data-job-id="{{ $listing->id }}" data-company-id="{{ $organization?->id }}"
-                            data-company="company-{{ $organization?->id }}"
-                            data-company-slug="{{ $organization?->slug }}"
-                            data-branch="{{ implode(' ', $listing->locations ?? []) }}"
-                            data-family="family-{{ $listing->job_family_id }}"
-                            data-level="{{ $listing->job_level?->value ?? '' }}" data-code="{{ $listing->job_code }}"
-                            data-search="{{ e($searchText) }}">
-                            <div class="flex h-2 w-full"
-                                style="background-color: {{ $organization?->brand_color ?? '#1C463C' }}"></div>
+                            data-job-id="{{ $opening->id }}" data-company="{{ $organizationKey }}"
+                            data-branch="{{ $opening->location?->value }}"
+                            data-family="{{ $opening->category?->value }}" data-search="{{ e($searchText) }}">
+                            <div class="flex h-2 w-full bg-alisary-green"></div>
                             <div class="flex-1 p-6">
                                 <div class="mb-4 flex flex-wrap gap-2">
-                                    @if ($listing->job_code)
-                                        <span
-                                            class="rounded-lg bg-[#f3eee1] px-3 py-1 text-xs font-bold tracking-wide text-[#7a7160]"
-                                            title="Job reference">{{ $listing->job_code }}</span>
-                                    @endif
                                     <span
-                                        class="rounded-full bg-alisary-ivory px-3 py-1 text-xs font-bold text-alisary-deep">{{ $organization?->name }}</span>
-                                    @if ($listing->jobFamily)
+                                        class="rounded-full bg-alisary-ivory px-3 py-1 text-xs font-bold text-alisary-deep">{{ $organizationName }}</span>
+                                    @if ($opening->category)
                                         <span
-                                            class="rounded-full bg-alisary-green/10 px-3 py-1 text-xs font-bold text-alisary-green">{{ $listing->jobFamily->name }}</span>
+                                            class="rounded-full bg-alisary-green/10 px-3 py-1 text-xs font-bold text-alisary-green">{{ $opening->category->label() }}</span>
                                     @endif
-                                    @if ($listing->job_level)
-                                        <span
-                                            class="rounded-full bg-alisary-gold/15 px-3 py-1 text-xs font-bold text-alisary-deep">{{ $listing->job_level->label() }}</span>
-                                    @endif
-                                    <span
-                                        class="rounded-full bg-alisary-deep px-3 py-1 text-xs font-bold text-white">{{ $listing->type?->label() }}</span>
                                 </div>
                                 <h2 class="font-display text-2xl leading-tight text-alisary-deep"
-                                    id="job-title-{{ $listing->id }}">{{ $listing->title }}</h2>
-                                <p class="mt-3 text-sm leading-loose text-alisary-soft">{{ $listing->excerpt }}</p>
+                                    id="job-title-{{ $opening->id }}">
+                                    <a href="{{ $openingUrl }}">{{ $opening->title }}</a>
+                                </h2>
+                                @if (filled($openingSummary))
+                                    <p class="mt-3 text-sm leading-loose text-alisary-soft">
+                                        {{ \Illuminate\Support\Str::limit(strip_tags((string) $openingSummary), 180) }}
+                                    </p>
+                                @endif
 
                                 <div class="mt-4 flex flex-wrap gap-4 text-xs text-alisary-soft">
-                                    <span class="flex items-center gap-1.5"><x-icons.remix.map-pin class="size-3.5" />
-                                        {{ $listing->locationsLabel() }}</span>
-                                    @if ($deadline)
+                                    @if ($opening->location)
+                                        <span class="flex items-center gap-1.5"><x-icons.remix.map-pin class="size-3.5" />
+                                            {{ $opening->location->label() }}</span>
+                                    @endif
+                                    @if ($opening->expires_at)
                                         <span class="flex items-center gap-1.5"><x-icons.remix.calendar
                                                 class="size-3.5 text-alisary-gold" /> ينتهي
-                                            {{ \App\Support\NumberLocalizer::eastern($deadline->format('Y-m-d')) }}</span>
+                                            {{ \App\Support\NumberLocalizer::eastern($opening->expires_at->format('Y-m-d')) }}</span>
                                     @endif
                                 </div>
                             </div>
 
-                            {{-- Content hidden in DOM for drawer --}}
-                            <div class="hidden" id="job-desc-{{ $listing->id }}">{!! $listing->description !!}</div>
-                            <div class="hidden" id="job-meta-{{ $listing->id }}" data-code="{{ $listing->job_code }}"
-                                data-family="{{ $listing->jobFamily?->name }}"
-                                data-level="{{ $listing->job_level?->label() }}"
-                                data-type="{{ $listing->type?->label() }}"
-                                data-location="{{ $listing->locationsLabel() }}"
-                                data-deadline="{{ $deadline ? \App\Support\NumberLocalizer::eastern($deadline->format('Y-m-d')) : '' }}">
-                            </div>
-
-                            <div id="job-share-menu-{{ $listing->id }}" data-job-share-menu="job-{{ $listing->id }}"
+                            <div id="job-share-menu-{{ $opening->id }}" data-job-share-menu="job-{{ $opening->id }}"
                                 class="hidden flex-wrap gap-2 border-t border-alisary-green/10 px-4 py-3">
-                                <button type="button" data-share-platform="whatsapp"
-                                    onclick="shareJobTo('whatsapp', {{ $listing->id }})"
-                                    class="min-w-24 flex-1 rounded-lg border border-alisary-green/15 bg-alisary-ivory px-3 py-2 text-xs font-bold text-alisary-deep transition hover:border-alisary-gold hover:bg-white">
-                                    واتساب
-                                </button>
-                                <button type="button" data-share-platform="facebook"
-                                    onclick="shareJobTo('facebook', {{ $listing->id }})"
-                                    class="min-w-24 flex-1 rounded-lg border border-alisary-green/15 bg-alisary-ivory px-3 py-2 text-xs font-bold text-alisary-deep transition hover:border-alisary-gold hover:bg-white">
-                                    فيسبوك
-                                </button>
-                                <button type="button" data-share-platform="x"
-                                    onclick="shareJobTo('x', {{ $listing->id }})"
-                                    class="min-w-24 flex-1 rounded-lg border border-alisary-green/15 bg-alisary-ivory px-3 py-2 text-xs font-bold text-alisary-deep transition hover:border-alisary-gold hover:bg-white">
-                                    X
-                                </button>
-                                <button type="button" data-share-platform="linkedin"
-                                    onclick="shareJobTo('linkedin', {{ $listing->id }})"
-                                    class="min-w-24 flex-1 rounded-lg border border-alisary-green/15 bg-alisary-ivory px-3 py-2 text-xs font-bold text-alisary-deep transition hover:border-alisary-gold hover:bg-white">
-                                    لينكدإن
-                                </button>
+                                @foreach (['whatsapp' => 'واتساب', 'facebook' => 'فيسبوك', 'x' => 'X', 'linkedin' => 'لينكدإن'] as $platform => $platformLabel)
+                                    <button type="button" data-share-platform="{{ $platform }}"
+                                        onclick="shareJobTo('{{ $platform }}', {{ $opening->id }}, @js($openingUrl))"
+                                        class="min-w-24 flex-1 rounded-lg border border-alisary-green/15 bg-alisary-ivory px-3 py-2 text-xs font-bold text-alisary-deep transition hover:border-alisary-gold hover:bg-white">
+                                        {{ $platformLabel }}
+                                    </button>
+                                @endforeach
                             </div>
 
                             <div class="flex items-center border-t border-alisary-green/10">
-                                <button type="button"
-                                    onclick="openJobDrawer({{ $listing->id }}, {{ $organization?->id }})"
+                                <a href="{{ $openingUrl }}"
                                     class="flex flex-1 cursor-pointer items-center justify-center gap-2 px-6 py-4 font-bold text-alisary-deep transition hover:bg-alisary-ivory">
                                     <x-icons.remix.file-list class="size-4" />
                                     التفاصيل
-                                </button>
+                                </a>
                                 <div class="h-8 w-px bg-alisary-green/10"></div>
-                                <button type="button" data-job-share="job-{{ $listing->id }}"
-                                    aria-controls="job-share-menu-{{ $listing->id }}" aria-expanded="false"
-                                    onclick="toggleJobShareMenu({{ $listing->id }})"
+                                <button type="button" data-job-share="job-{{ $opening->id }}"
+                                    aria-controls="job-share-menu-{{ $opening->id }}" aria-expanded="false"
+                                    onclick="toggleJobShareMenu({{ $opening->id }})"
                                     class="flex flex-1 cursor-pointer items-center justify-center gap-2 px-4 py-4 font-bold text-alisary-deep transition hover:bg-alisary-ivory">
                                     <x-icons.remix.share class="size-4" />
                                     مشاركة
                                 </button>
                                 <div class="h-8 w-px bg-alisary-green/10"></div>
-                                <button type="button"
-                                    onclick="quickApply(@js($listing->title), {{ $organization?->id }}, @js($listing->job_code))"
+                                <a href="{{ $openingUrl }}#apply-form"
                                     class="flex flex-1 cursor-pointer items-center justify-center gap-2 px-6 py-4 font-bold text-alisary-gold transition hover:bg-alisary-ivory hover:text-[#C5A359]">
                                     قدّم الآن
                                     <x-icons.remix.arrow-left class="size-4 rtl:rotate-180" />
-                                </button>
+                                </a>
                             </div>
                         </div>
-                    @else
+                    @empty
+                        <div
+                            class="rounded-lg border border-alisary-green/10 bg-white/80 p-10 text-center text-alisary-soft shadow-xl shadow-alisary-green/5 md:col-span-2">
+                            لا توجد وظائف منشورة حاليًا.</div>
+                    @endforelse
+                </div>
+            @else
+                <div class="grid gap-6 md:grid-cols-2">
+                    @forelse ($listings as $listing)
+                        @php
+                            $organization = $listing->contractor;
+                            $deadline = $listing->last_day_to_apply;
+                        @endphp
+
                         {{-- Standard listing card (Tenders) --}}
-                        <a href="{{ $route }}" class="lux-card listing-card group block cursor-pointer">
+                        <a href="{{ route('tenders.show', $listing) }}"
+                            class="lux-card listing-card group block cursor-pointer">
                             <div class="listing-meta">
                                 <span class="inline-flex items-center gap-2">
                                     <x-icons.remix.building class="size-4" />
@@ -322,13 +288,13 @@
                                 </span>
                             </div>
                         </a>
-                    @endif
-                @empty
-                    <div
-                        class="rounded-lg border border-alisary-green/10 bg-white/80 p-10 text-center text-alisary-soft shadow-xl shadow-alisary-green/5 md:col-span-2">
-                        لا توجد إعلانات منشورة حاليًا.</div>
-                @endforelse
-            </div>
+                    @empty
+                        <div
+                            class="rounded-lg border border-alisary-green/10 bg-white/80 p-10 text-center text-alisary-soft shadow-xl shadow-alisary-green/5 md:col-span-2">
+                            لا توجد إعلانات منشورة حاليًا.</div>
+                    @endforelse
+                </div>
+            @endif
 
             @if ($isJob && $listings->isNotEmpty())
                 <div id="jobs-empty-state"
@@ -359,8 +325,8 @@
                     <div class="rounded-xl border border-white/10 bg-white/5 p-6">
                         <div class="mb-4 font-display text-4xl font-bold text-alisary-gold">١</div>
                         <h4 class="mb-2 font-display text-xl font-bold">التقديم</h4>
-                        <p class="text-sm leading-relaxed text-white/70">تملأ استمارةً موحّدةً مرّةً واحدة، وترشّح نفسك
-                            لِما يصل إلى ثلاث وظائف.</p>
+                        <p class="text-sm leading-relaxed text-white/70">تفتح صفحة الوظيفة التي تناسبك، وتملأ نموذجها
+                            الخاص بها.</p>
                     </div>
                     <div class="rounded-xl border border-white/10 bg-white/5 p-6">
                         <div class="mb-4 font-display text-4xl font-bold text-alisary-gold">٢</div>
@@ -443,7 +409,7 @@
                         أدلةٌ تختصر وقتك وترفع حظوظك
                     </h2>
                     <p class="mt-4 leading-loose text-alisary-soft">
-                        نُصدر إرشاداتٍ عمليةً للمتقدّمين دوريًّا. ابدأ بهذه الثلاثة قبل ملء الاستمارة.
+                        نُصدر إرشاداتٍ عمليةً للمتقدّمين دوريًّا. ابدأ بهذه الثلاثة قبل التقديم.
                     </p>
                 </div>
 
@@ -489,8 +455,6 @@
                 </div>
             </div>
         </section>
-
-        @include('website.partials.careers-application-form')
 
         <section class="section bg-[#EFE8DA]" id="rights">
             <div class="mx-auto max-w-7xl px-5 lg:px-10">
@@ -557,13 +521,11 @@
             </div>
         </section>
 
-        @include('website.partials.job-drawer')
-
         <script>
             let activeCompanyFilter = 'all';
             let activeFamilyFilter = 'all';
             let activeBranchFilter = 'all';
-            const schoolCompanyFilter = @js($schoolCompany ? 'company-'.$schoolCompany->id : null);
+            const schoolCompanyFilter = @js($schoolOrganizationKey);
 
             function filterJobs(filterId) {
                 activeCompanyFilter = filterId;
@@ -578,6 +540,54 @@
             function filterJobBranch(filterId) {
                 activeBranchFilter = filterId;
                 applyJobFilters();
+            }
+
+            function closeJobShareMenus() {
+                document.querySelectorAll('[data-job-share-menu]').forEach((menu) => {
+                    menu.classList.add('hidden');
+                    menu.classList.remove('flex');
+                });
+
+                document.querySelectorAll('[data-job-share]').forEach((button) => {
+                    button.setAttribute('aria-expanded', 'false');
+                });
+            }
+
+            function toggleJobShareMenu(jobId) {
+                const shareMenu = document.getElementById(`job-share-menu-${jobId}`);
+                const shareButton = document.querySelector(`[data-job-share="job-${jobId}"]`);
+
+                if (!shareMenu || !shareButton) {
+                    return;
+                }
+
+                const shouldOpen = shareMenu.classList.contains('hidden');
+
+                closeJobShareMenus();
+
+                if (shouldOpen) {
+                    shareMenu.classList.remove('hidden');
+                    shareMenu.classList.add('flex');
+                    shareButton.setAttribute('aria-expanded', 'true');
+                }
+            }
+
+            function shareJobTo(platform, jobId, jobUrl) {
+                const jobTitle = document.getElementById(`job-title-${jobId}`)?.innerText.trim() ?? '';
+                const encodedUrl = encodeURIComponent(jobUrl);
+                const shareUrls = {
+                    whatsapp: `https://wa.me/?text=${encodeURIComponent(`${jobTitle}\n${jobUrl}`)}`,
+                    facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
+                    x: `https://twitter.com/intent/tweet?text=${encodeURIComponent(jobTitle)}&url=${encodedUrl}`,
+                    linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`,
+                };
+
+                if (!shareUrls[platform]) {
+                    return;
+                }
+
+                window.open(shareUrls[platform], '_blank', 'noopener,noreferrer');
+                closeJobShareMenus();
             }
 
             function normalizeJobText(value) {

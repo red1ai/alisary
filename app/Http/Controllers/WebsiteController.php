@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\ListingLocation;
+use App\Enums\CareerCategory;
 use App\Models\CareerOpening;
+use App\Models\CareerOrganization;
 use App\Models\Company;
-use App\Models\JobFamily;
 use App\Models\JobListing;
 use App\Models\TenderListing;
 use App\Settings\GeneralSettings;
@@ -38,58 +38,41 @@ class WebsiteController extends Controller
 
     public function jobs(GeneralSettings $settings): View
     {
-        $companies = Company::query()->active()->orderBy('sort_order')->get();
-        $jobFamilies = JobFamily::query()->active()->orderBy('sort_order')->orderBy('name')->get();
-        $listings = JobListing::query()->published()->with(['company', 'jobFamily'])->latest('published_at')->get();
-        $schoolCompany = $companies->firstWhere('slug', 'g-reader-school');
-        $schoolBranchOptions = $schoolCompany === null
+        $openings = CareerOpening::query()
+            ->with(['company', 'organization'])
+            ->latest('published_at')
+            ->get()
+            ->filter(fn (CareerOpening $opening): bool => $opening->isPublished())
+            ->values();
+
+        $organizations = $openings
+            ->map(fn (CareerOpening $opening): string => $opening->organizationName() ?? 'مجموعة العيسري')
+            ->unique()
+            ->values()
+            ->mapWithKeys(fn (string $name, int $index): array => [$name => 'org-'.($index + 1)]);
+
+        $schoolOrganization = CareerOrganization::query()->where('slug', 'g-reader-school')->first();
+        $schoolOrganizationKey = $schoolOrganization === null ? null : $organizations->get($schoolOrganization->name);
+        $schoolBranchOptions = $schoolOrganization === null
             ? collect()
-            : $listings
-                ->where('company_id', $schoolCompany->id)
-                ->flatMap(fn (JobListing $listing): array => $listing->locations ?? [])
-                ->filter()
-                ->unique()
-                ->map(fn (string $value): array => [
-                    'value' => $value,
-                    'label' => ListingLocation::tryFrom($value)?->label() ?? $value,
+            : $openings
+                ->filter(fn (CareerOpening $opening): bool => $opening->career_organization_id === $schoolOrganization->id && $opening->location !== null)
+                ->map(fn (CareerOpening $opening): array => [
+                    'value' => $opening->location->value,
+                    'label' => $opening->location->label(),
                 ])
+                ->unique('value')
                 ->values();
-
-        $jobTitles = $listings
-            ->sortBy('title')
-            ->groupBy('company_id')
-            ->map(fn ($jobs) => $jobs->map(fn (JobListing $job): array => [
-                'title' => $job->title,
-                'code' => $job->job_code,
-                'value' => $job->job_code ?? $job->title,
-                'label' => $job->title,
-                'track' => $job->jobFamily?->track?->value,
-                'locations' => collect($job->locations ?? [])
-                    ->map(function (string $value): array {
-                        $location = ListingLocation::tryFrom($value);
-                        $governorate = $location?->governorate();
-
-                        return [
-                            'value' => $value,
-                            'label' => $location?->label() ?? $value,
-                            'governorate_value' => $governorate?->value,
-                            'governorate_label' => $governorate?->label(),
-                        ];
-                    })
-                    ->values()
-                    ->all(),
-            ])->values());
 
         return view('website.listings.index', [
             'settings' => $settings,
             'type' => 'jobs',
             'label' => 'الوظائف',
-            'description' => 'فرص مهنية لخدمة الطفل ومن يخدم الطفل، مع نماذج تقديم مخصصة بحسب احتياج كل وظيفة.',
-            'listings' => $listings,
-            'companies' => $companies,
-            'jobFamilies' => $jobFamilies,
-            'jobTitles' => $jobTitles,
-            'schoolCompany' => $schoolCompany,
+            'description' => 'فرص مهنية لخدمة الطفل ومن يخدم الطفل، مع صفحة مستقلة ونموذج تقديم مخصص لكل وظيفة.',
+            'listings' => $openings,
+            'organizations' => $organizations,
+            'categories' => CareerCategory::cases(),
+            'schoolOrganizationKey' => $schoolOrganizationKey,
             'schoolBranchOptions' => $schoolBranchOptions,
         ]);
     }
