@@ -42,7 +42,8 @@ it('shows the organization page with only its published openings', function () {
 it('keeps the organization route separate from job slugs', function () {
     $opening = CareerOpening::factory()->create(['slug' => 'organizations']);
 
-    $this->get('/careers/organizations')->assertSuccessful()->assertSee($opening->title);
+    $this->get('/careers/organizations')->assertRedirect('/jobs/organizations');
+    $this->get('/jobs/organizations')->assertSuccessful()->assertSee($opening->title);
     $this->get('/careers/organizations/missing')->assertNotFound();
 });
 
@@ -53,10 +54,10 @@ it('renders open graph and twitter tags for a job using the organization logo', 
         'title' => 'معلمة رياضيات',
         'summary' => 'ملخص الوظيفة للمشاركة',
     ]);
-    $url = 'https://alisary.example.org/careers/'.$opening->slug;
+    $url = 'https://alisary.example.org/jobs/'.$opening->slug;
     $image = 'https://alisary.example.org/storage/career-organizations/logos/logo.png';
 
-    $this->get('http://127.0.0.1:8000/careers/'.$opening->slug)
+    $this->get('http://127.0.0.1:8000/jobs/'.$opening->slug)
         ->assertSuccessful()
         ->assertSee('<meta property="og:title" content="معلمة رياضيات - مدرسة الاختبار">', false)
         ->assertSee('<meta property="og:description" content="ملخص الوظيفة للمشاركة">', false)
@@ -72,12 +73,12 @@ it('renders open graph and twitter tags for a job using the organization logo', 
 it('falls back to the default image without a logo and never emits local urls', function () {
     $opening = CareerOpening::factory()->create(['career_organization_id' => CareerOrganization::factory()->create()->id]);
 
-    $this->get(route('careers.show', $opening))
+    $this->get(route('jobs.show', $opening))
         ->assertSee('<meta property="og:image" content="https://alisary.example.org/android-chrome-512x512.png">', false);
 
     config(['app.url' => 'http://localhost']);
 
-    $this->get(route('careers.show', $opening))
+    $this->get(route('jobs.show', $opening))
         ->assertSuccessful()
         ->assertSee('og:title', false)
         ->assertDontSee('og:url', false)
@@ -99,7 +100,7 @@ it('displays the uploaded logo on the job and organization pages', function () {
     $organization = CareerOrganization::factory()->create(['logo_path' => 'career-organizations/logos/shown.png']);
     $opening = CareerOpening::factory()->create(['career_organization_id' => $organization->id]);
 
-    $this->get(route('careers.show', $opening))->assertSee('src="/storage/career-organizations/logos/shown.png"', false);
+    $this->get(route('jobs.show', $opening))->assertSee('src="/storage/career-organizations/logos/shown.png"', false);
     $this->get(route('careers.organizations.show', $organization))->assertSee('src="/storage/career-organizations/logos/shown.png"', false);
 });
 

@@ -17,7 +17,7 @@ class EditCareerOpening extends EditRecord
             Action::make('preview')
                 ->label('معاينة الصفحة')
                 ->icon('heroicon-o-eye')
-                ->url(fn (): string => route('careers.show', $this->getRecord()))
+                ->url(fn (): string => route('jobs.show', $this->getRecord()))
                 ->openUrlInNewTab(),
             DeleteAction::make(),
         ];

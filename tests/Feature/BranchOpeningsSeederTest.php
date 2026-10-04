@@ -30,12 +30,12 @@ it('creates the four openings as hidden drafts linked to the school organization
             ->company_id->toBe($this->company->id));
 
     foreach (BranchOpeningsSeeder::SLUGS as $slug) {
-        $this->get(route('careers.show', $slug))->assertNotFound();
+        $this->get(route('jobs.show', $slug))->assertNotFound();
         $this->post(route('careers.apply', $slug), [])->assertNotFound();
     }
 
     $this->actingAs(User::factory()->create())
-        ->get(route('careers.show', 'english-teacher-bawshar'))
+        ->get(route('jobs.show', 'english-teacher-bawshar'))
         ->assertSuccessful()
         ->assertSee('معاينة للإدارة فقط');
 });
@@ -74,7 +74,7 @@ it('aborts without creating anything when the school company is missing', functi
 it('shows each published opening on its own page with its own content', function (string $slug, string $title, array $expected) {
     publishBranchOpenings();
 
-    $this->get(route('careers.show', $slug))
+    $this->get(route('jobs.show', $slug))
         ->assertSuccessful()
         ->assertSee($title)
         ->assertSee($expected)

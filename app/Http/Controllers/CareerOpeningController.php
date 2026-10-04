@@ -2,18 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Mail\CareerApplicationReceived;
-use App\Models\CareerApplication;
 use App\Models\CareerOpening;
 use App\Models\CareerOrganization;
 use App\Settings\GeneralSettings;
+use App\Support\CareerApplicationRecorder;
 use App\Support\CareerForm;
 use App\Support\CareerShare;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -33,6 +30,13 @@ class CareerOpeningController extends Controller
             'opening' => $careerOpening->load(['company', 'organization']),
             'meta' => $careerOpening->shareMeta(),
         ]);
+    }
+
+    public function legacyRedirect(string $slug): RedirectResponse
+    {
+        $careerOpening = CareerOpening::where('slug', $slug)->firstOrFail();
+
+        return redirect()->route('jobs.show', $careerOpening, 301);
     }
 
     public function organization(GeneralSettings $settings, CareerOrganization $careerOrganization): View
@@ -87,44 +91,17 @@ class CareerOpeningController extends Controller
             return back()->withFragment('apply-form')->with('application_success', true);
         }
 
-        $validated = $validator->validated();
-        $directory = "career-applications/{$careerOpening->id}/".Str::uuid();
-
-        $files = [];
-        foreach ($request->file('files', []) as $key => $file) {
-            if (! isset($validated['files'][$key])) {
-                continue;
-            }
-
-            if ($file instanceof UploadedFile) {
-                $files[$key] = $file->store($directory, 'local');
-            } elseif (is_array($file)) {
-                $files[$key] = collect($file)
-                    ->filter(fn ($item): bool => $item instanceof UploadedFile)
-                    ->map(fn (UploadedFile $item): string => $item->store($directory, 'local'))
-                    ->values()
-                    ->all();
-            }
-        }
-
-        $application = CareerApplication::create([
-            'reference_number' => 'CA-'.now()->format('ymd').'-'.Str::upper(Str::random(5)),
-            'career_opening_id' => $careerOpening->id,
-            'full_name' => $validated['full_name'],
-            'phone' => $validated['phone'],
-            'email' => $validated['email'],
-            'answers' => $validated['answers'] ?? [],
-            'files' => $files,
-        ]);
-
-        $emails = $settings->jobSubmissionRecipientEmails();
-        if (! empty($emails)) {
-            Mail::to($emails)->queue(new CareerApplicationReceived($application));
-        }
+        $application = CareerApplicationRecorder::record(
+            $careerOpening,
+            $validator->validated(),
+            $request->file('files', []),
+            $settings,
+        );
 
         return back()
             ->withFragment('apply-form')
             ->with('application_success', true)
-            ->with('application_reference', $application->reference_number);
+            ->with('application_reference', $application->reference_number)
+            ->with('application_files_count', collect($application->files)->flatten()->count());
     }
 }

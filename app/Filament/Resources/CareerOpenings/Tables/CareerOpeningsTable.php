@@ -22,7 +22,7 @@ class CareerOpeningsTable
                 TextColumn::make('slug')->label('الرابط')->copyable(),
             ])
             ->recordActions([
-                Action::make('preview')->label('معاينة')->icon('heroicon-o-eye')->url(fn ($record): string => route('careers.show', $record))->openUrlInNewTab(),
+                Action::make('preview')->label('معاينة')->icon('heroicon-o-eye')->url(fn ($record): string => route('jobs.show', $record))->openUrlInNewTab(),
                 EditAction::make(),
             ])
             ->toolbarActions([

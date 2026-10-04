@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>أداة بناء صفحة الوظيفة</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--teal:#1C463C;--teal-2:#2B6455;--teal-soft:#E4EEEA;--gold:#B8924A;--bg:#F1EEE6;--card:#fff;--ink:#1B2B26;--muted:#5A6A64;--line:#DDD6C4;--danger:#B3261E}
+*{box-sizing:border-box}
+:target,input,select,textarea,button{scroll-margin-top:80px}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans Arabic',Tahoma,sans-serif;font-size:15.5px;line-height:1.7;color-scheme:light}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px;border-radius:6px}
+.top{background:var(--teal);color:#fff;padding:12px 20px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;position:sticky;top:0;z-index:10}
+.top h1{font-size:18px;margin:0;font-weight:700}
+.top small{color:#CFE0D9}
+.top .sp{margin-inline-start:auto;display:flex;gap:8px;flex-wrap:wrap}
+.b{border:0;border-radius:10px;padding:8px 16px;cursor:pointer;font-weight:600;min-height:40px}
+.b.gold{background:var(--gold);color:#fff}.b.line{background:transparent;border:1.5px solid rgba(255,255,255,.45);color:#fff}
+.b.sm{padding:3px 10px;min-height:30px;font-size:14px;background:var(--teal-soft);color:var(--teal)}
+.b.x{background:#FCEBE9;color:var(--danger)}
+.main{display:grid;grid-template-columns:minmax(360px,470px) minmax(0,1fr);gap:16px;padding:16px;align-items:start}
+.panel{display:grid;gap:12px}
+.sec{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.sec>h2{font-size:16.5px;margin:0 0 8px;color:var(--teal)}
+.sec>p{margin:0 0 10px;color:var(--muted);font-size:14px}
+.types{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.type{border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;cursor:pointer;background:#fff;text-align:start}
+.type b{display:block;color:var(--teal)}.type small{color:var(--muted);display:block;line-height:1.5;font-size:13px}.type em{font-style:normal;color:var(--gold);font-size:12.5px}
+.type.on{border-color:var(--teal);background:var(--teal-soft)}
+label.l{display:block;font-weight:600;font-size:14px;margin:10px 0 3px}
+.in{width:100%;border:1.5px solid #CFC8B5;border-radius:9px;padding:7px 10px;background:#fff;min-height:38px}
+textarea.in{min-height:84px;resize:vertical;line-height:1.7}
+.row{display:flex;gap:8px;align-items:center}
+.blk{border-top:1px solid var(--line);padding:10px 0}
+.blk:first-of-type{border-top:0}
+.blk .hd{display:flex;align-items:center;gap:10px}
+.blk .hd b{flex:1}
+.sw{position:relative;width:42px;height:24px;flex:none}
+.sw input{position:absolute;inset:0;opacity:0;cursor:pointer;margin:0;width:100%;height:100%;z-index:1}
+.sw i{position:absolute;inset:0;background:#CFC8B5;border-radius:12px;transition:.15s}
+.sw i::after{content:"";position:absolute;top:3px;inset-inline-end:3px;width:18px;height:18px;background:#fff;border-radius:50%;transition:.15s}
+.sw input:checked+i{background:var(--teal-2)}.sw input:checked+i::after{inset-inline-end:21px}
+.sw input:focus-visible+i{outline:3px solid var(--gold)}
+.body{margin-top:6px}.body[hidden]{display:none}
+.hint{font-size:13px;color:var(--muted)}
+.step{border:1.5px solid var(--line);border-radius:12px;padding:10px;margin:8px 0;background:#FCFBF7}
+.fld{display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:1px dashed var(--line);flex-wrap:wrap}
+.fld:last-child{border-bottom:0}
+.fld .nm{flex:1;min-width:140px;font-size:14px}
+.fld .nm small{display:block;color:var(--muted);font-size:12px}
+.fld.h .nm{font-weight:700;color:var(--teal)}
+.gate{color:#7A5200;background:#FFF4D6;border-radius:6px;padding:0 6px;font-size:12px}
+.ck{display:flex;align-items:center;gap:4px;font-size:13px;white-space:nowrap}
+.pv{position:sticky;top:96px}
+.pvbar{display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap}
+.seg{display:inline-flex;border:1.5px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
+.seg button{border:0;background:none;padding:6px 14px;cursor:pointer}
+.seg button.on{background:var(--teal);color:#fff}
+.frame{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;margin:0 auto;height:calc(100vh - 175px);min-height:520px;transition:max-width .2s}
+.frame iframe{width:100%;height:100%;border:0;display:block}
+.toast{position:fixed;bottom:18px;inset-inline-start:18px;background:var(--teal);color:#fff;border-radius:10px;padding:10px 16px;z-index:50;opacity:0;transition:.2s;pointer-events:none}
+.toast.on{opacity:1}
+@media(max-width:980px){.main{grid-template-columns:1fr}.pv{position:static}.frame{height:70vh}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div><h1>أداة بناء صفحة الوظيفة</h1><small>اختر النوع، ثم أضف الأقسام والحقول أو احذفها، وانظر النتيجة مباشرة</small></div>
+  <div class="sp">
+    <button class="b line" id="bJson">نسخ الإعداد (JSON)</button>
+    <button class="b gold" id="bDl">تنزيل الصفحة HTML</button>
+  </div>
+</header>
+<div class="main">
+  <div class="panel" id="panel"></div>
+  <div class="pv">
+    <div class="pvbar"><div class="seg" id="dev"><button data-w="420" class="on">جوال</button><button data-w="100%">حاسوب</button></div><span class="hint">المعاينة تتحدّث تلقائيًّا. الإرسال في المعاينة تجريبي.</span></div>
+    <div class="frame" id="frame" style="max-width:420px"><iframe id="pv" title="معاينة الصفحة"></iframe></div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+<script>
+var CSS = ":root{\n  --teal:#1C463C;--teal-2:#2B6455;--teal-soft:#E4EEEA;\n  --gold:#B8924A;--gold-soft:#F3EAD6;\n  --bg:#F7F4EC;--card:#fff;--ink:#1B2B26;--muted:#5A6A64;--line:#E2DCCB;\n  --danger:#B3261E;--danger-soft:#FCEBE9;--warn:#7A5200;--warn-soft:#FFF4D6;--ok:#1E6B3A;\n  --r:16px;--shadow:0 1px 2px rgba(28,70,60,.06),0 8px 24px rgba(28,70,60,.07);\n}\n*{box-sizing:border-box}\nhtml{scroll-behavior:smooth;-webkit-text-size-adjust:100%}\nbody{margin:0;background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans Arabic',Tahoma,'Segoe UI',sans-serif;font-size:17px;line-height:1.85;color-scheme:light}\nh1,h2,h3,p,ul,ol{margin:0}\nul,ol{padding:0;list-style:none}\na{color:var(--teal-2)}\n.wrap{max-width:1080px;margin:0 auto;padding:0 20px}\n:focus-visible{outline:3px solid var(--gold);outline-offset:2px;border-radius:6px}\n\n.draft{background:var(--warn-soft);color:var(--warn);border-bottom:1px solid #E9D49A;text-align:center;padding:8px 16px;font-size:14.5px;line-height:1.6}\n\n/* ---------- hero ---------- */\n.hero{background:var(--teal);color:#fff;position:relative;overflow:hidden;padding:44px 0 40px}\n.hero::before{content:\"\";position:absolute;inset:0;opacity:.09;background-image:\n  radial-gradient(circle at 20% 20%,#fff 0 2px,transparent 3px),\n  linear-gradient(45deg,transparent 46%,#fff 47% 49%,transparent 50%),\n  linear-gradient(-45deg,transparent 46%,#fff 47% 49%,transparent 50%);\n  background-size:44px 44px,44px 44px,44px 44px}\n.hero .wrap{position:relative}\n.eyebrow{display:inline-block;color:#E8D7AE;font-size:15px;font-weight:500;letter-spacing:.2px;margin-bottom:8px}\n.eyebrow::before{content:\"\";display:inline-block;width:22px;height:2px;background:var(--gold);vertical-align:middle;margin-inline-end:10px}\n.hero h1{font-size:clamp(28px,5.4vw,46px);line-height:1.35;font-weight:700;max-width:22em}\n.hero .sub{margin-top:10px;color:#D4E2DC;font-size:clamp(16px,2.2vw,19px);max-width:36em}\n.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}\n.chips li{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:3px 14px;font-size:14.5px;line-height:1.7}\n.chips b{font-weight:500;color:#E8D7AE;margin-inline-end:6px}\n.hero-cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:26px}\n.tier-light.hero{padding:34px 0 30px}\n\n.btn{font:inherit;font-weight:600;font-size:17px;border:0;border-radius:12px;padding:12px 26px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;transition:transform .12s,background .15s}\n.btn:active{transform:translateY(1px)}\n.btn-gold{background:var(--gold);color:#fff}\n.btn-gold:hover{background:#A5803C}\n.btn-ghost{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.4)}\n.btn-ghost:hover{background:rgba(255,255,255,.1)}\n.btn-main{background:var(--teal);color:#fff}\n.btn-main:hover{background:var(--teal-2)}\n.btn-line{background:#fff;color:var(--teal);border:1.5px solid var(--line)}\n.btn-line:hover{border-color:var(--teal)}\n.btn[disabled]{opacity:.55;cursor:not-allowed}\n\n/* ---------- content ---------- */\n.layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:28px;padding-top:30px;padding-bottom:10px;align-items:start}\n.layout.single{grid-template-columns:minmax(0,1fr);max-width:760px}\n.content{display:grid;gap:16px}\n.block{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:22px 24px}\n.block h2{font-size:20px;line-height:1.5;color:var(--teal);font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:10px}\n.block h2::before{content:\"\";width:6px;height:22px;border-radius:3px;background:var(--gold)}\n.block p{color:#2C3C36}\n.ticks li{position:relative;padding-inline-start:30px;margin:6px 0}\n.ticks li::before{content:\"\";position:absolute;inset-inline-start:0;top:.55em;width:18px;height:18px;border-radius:50%;background:var(--teal-soft) url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M5 10.5l3.2 3.2L15 6.8' fill='none' stroke='%231C463C' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E\") center/14px no-repeat}\n.two{display:grid;grid-template-columns:1fr 1fr;gap:20px}\n.two h3{font-size:15px;color:var(--muted);font-weight:600;margin-bottom:4px}\n.dots li{position:relative;padding-inline-start:20px;margin:5px 0}\n.dots li::before{content:\"\";position:absolute;inset-inline-start:2px;top:.8em;width:7px;height:7px;border-radius:50%;background:var(--gold)}\n.rows{display:grid;gap:0}\n.rows div{display:flex;gap:14px;justify-content:space-between;padding:9px 0;border-bottom:1px dashed var(--line)}\n.rows div:last-child{border-bottom:0}\n.rows dt{color:var(--muted)}\n.rows dd{margin:0;font-weight:600;text-align:start}\n.seatbar{display:grid;gap:8px}\n.seatbar li{display:grid;grid-template-columns:130px 1fr auto;gap:12px;align-items:center}\n.seatbar i{display:block;height:10px;border-radius:6px;background:var(--teal-soft);position:relative;overflow:hidden}\n.seatbar i::after{content:\"\";position:absolute;inset-block:0;inset-inline-start:0;width:var(--w);background:var(--teal-2);border-radius:6px}\n.seatbar b{min-width:2.5em;text-align:end;color:var(--teal)}\n.pay{background:var(--gold-soft);border-color:#E6D5AA}\n.pay h2::before{background:var(--teal)}\n.path{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px}\n.path li{display:flex;align-items:center;gap:8px}\n.path li span{background:var(--teal-soft);color:var(--teal);font-weight:600;border-radius:999px;padding:4px 16px}\n.path li+li::before{content:\"←\";color:var(--gold);font-weight:700}\n.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}\n.kpis li{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:12px 14px;line-height:1.7}\n.pillars{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:10px}\n.pillar{border:1.5px solid var(--line);border-radius:14px;padding:12px;border-top:5px solid var(--c);background:#fff;opacity:.62}\n.pillar.on{opacity:1;background:color-mix(in srgb,var(--c) 7%,#fff);border-color:color-mix(in srgb,var(--c) 45%,#fff);border-top-color:var(--c)}\n.pillar b{display:block;color:var(--c);font-size:18px;line-height:1.5}\n.pillar small{display:block;color:var(--muted);font-size:13px;line-height:1.7;margin-top:2px}\n.pillar em{font-style:normal;font-size:12.5px;color:var(--c);font-weight:600}\n.steps{counter-reset:s;display:grid;gap:0}\n.steps li{counter-increment:s;position:relative;padding:0 52px 18px 0;margin-inline:0}\n.steps li::before{content:counter(s);position:absolute;inset-inline-start:auto;right:0;top:0;width:36px;height:36px;border-radius:50%;background:var(--teal);color:#fff;display:grid;place-items:center;font-weight:700;font-size:15px}\n.steps li::after{content:\"\";position:absolute;right:17px;top:38px;bottom:2px;width:2px;background:var(--line)}\n.steps li:last-child{padding-bottom:0}.steps li:last-child::after{display:none}\n.steps b{display:block;line-height:1.6;padding-top:3px}\n.steps span{color:var(--muted);font-size:15.5px;line-height:1.7;display:block}\n\n.aside{position:sticky;top:16px}\n.aside .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:20px;box-shadow:var(--shadow)}\n.aside h3{font-size:16px;color:var(--teal);margin-bottom:6px}\n.aside .rows{margin-bottom:14px;font-size:15.5px}\n.aside .btn{width:100%}\n\n/* ---------- form ---------- */\n.apply{padding-top:26px;padding-bottom:70px}\n.form-card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:28px;box-shadow:var(--shadow);max-width:760px;margin:0 auto}\n.layout.single + .apply .form-card{margin:0 auto}\n.form-card>h2{font-size:24px;color:var(--teal);line-height:1.5}\n.form-card .lead{color:var(--muted);margin-top:2px;margin-bottom:6px}\n.stepper{display:flex;gap:8px;margin:18px 0 22px}\n.stepper li{flex:1;display:flex;flex-direction:column;gap:6px;font-size:13.5px;color:var(--muted);line-height:1.5}\n.stepper li::before{content:\"\";height:6px;border-radius:4px;background:var(--line)}\n.stepper li.done::before{background:var(--teal-2)}\n.stepper li.cur::before{background:var(--gold)}\n.stepper li.cur{color:var(--ink);font-weight:600}\n.stepper small{font-size:12px;color:var(--muted);font-weight:400}\n.grp{font-size:15px;font-weight:700;color:var(--teal);margin:22px 0 4px;padding-top:14px;border-top:1px solid var(--line)}\n.grp:first-child{margin-top:6px;border-top:0;padding-top:0}\n.step[hidden]{display:none}\n.field{margin:14px 0}\n.field>label,.field>legend{display:block;font-weight:600;margin-bottom:5px;line-height:1.6;padding:0}\n.field fieldset{border:0;margin:0;padding:0;min-width:0}\n.req{color:var(--danger);margin-inline-start:4px;font-weight:700}\n.opt{color:var(--muted);font-weight:400;font-size:14px;margin-inline-start:6px}\n.hint{color:var(--muted);font-size:14.5px;line-height:1.6;margin-top:4px}\n.input,select.input,textarea.input{width:100%;font:inherit;color:var(--ink);background:#fff;border:1.5px solid #CFC8B5;border-radius:12px;padding:11px 14px;min-height:50px;transition:border-color .15s,box-shadow .15s}\ntextarea.input{min-height:130px;resize:vertical;line-height:1.8}\n.input:focus{outline:none;border-color:var(--teal-2);box-shadow:0 0 0 4px rgba(43,100,85,.15)}\n.unit{display:flex;align-items:center;gap:10px}.unit span{color:var(--muted);font-weight:600;white-space:nowrap}\n.choices{display:grid;gap:8px}\n.choices.row{grid-template-columns:repeat(auto-fit,minmax(120px,1fr))}\n.choice{display:flex;align-items:center;gap:12px;border:1.5px solid #CFC8B5;border-radius:12px;padding:11px 14px;cursor:pointer;min-height:50px;background:#fff}\n.choice:hover{border-color:var(--teal-2)}\n.choice input{width:20px;height:20px;accent-color:var(--teal);margin:0;flex:none}\n.choice:has(input:checked){border-color:var(--teal);background:var(--teal-soft);font-weight:600}\n.file{border:2px dashed #CFC8B5;border-radius:12px;padding:14px;background:#FCFBF7;display:flex;align-items:center;gap:12px;flex-wrap:wrap}\n.file input{font:inherit;max-width:100%}\n.reveal{margin-top:10px}\n.reveal[hidden]{display:none}\n.cnt{float:inline-end;font-size:13px;color:var(--muted)}\n.err{color:var(--danger);font-size:14.5px;margin-top:5px;line-height:1.6}\n.field.bad .input,.field.bad .choice,.field.bad .file{border-color:var(--danger)}\n.gate{background:var(--warn-soft);color:var(--warn);border:1px solid #E9D49A;border-radius:10px;padding:9px 14px;margin-top:8px;font-size:15px;line-height:1.7}\n.consent{display:flex;gap:12px;align-items:flex-start;background:var(--bg);border-radius:12px;padding:14px;margin-top:22px}\n.consent input{width:22px;height:22px;accent-color:var(--teal);flex:none;margin-top:4px}\n.blocked{background:var(--danger-soft);color:var(--danger);border-radius:10px;padding:10px 14px;margin-top:16px;font-size:15px;line-height:1.7}\n.notice{background:var(--teal-soft);color:var(--teal);border-radius:10px;padding:10px 14px;margin-top:14px;font-size:15px}\n.actions{display:flex;gap:12px;justify-content:space-between;margin-top:24px;flex-wrap:wrap}\n.actions .btn-main{margin-inline-start:auto}\n.hp{position:absolute;opacity:0;pointer-events:none;width:0;height:0;overflow:hidden}\n.success{text-align:center;padding:26px 6px}\n.success .tick{width:72px;height:72px;border-radius:50%;background:var(--teal-soft);margin:0 auto 14px;display:grid;place-items:center}\n.success .tick svg{width:38px;height:38px}\n.success h3{font-size:24px;color:var(--teal);line-height:1.5}\n.success p{color:var(--muted);margin-top:8px}\n.demo{margin-top:16px;background:var(--warn-soft);color:var(--warn);border-radius:10px;padding:10px 14px;font-size:14.5px}\n.foot{border-top:1px solid var(--line);padding:24px 0 90px;text-align:center;color:var(--muted);font-size:15px}\n.foot b{color:var(--teal)}\n\n.ctabar{position:fixed;inset-inline:0;bottom:0;background:#fff;border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom));display:none;gap:12px;align-items:center;justify-content:space-between;z-index:20;box-shadow:0 -6px 20px rgba(0,0,0,.08)}\n.ctabar span{font-weight:600;line-height:1.4;font-size:15px;color:var(--teal)}\n.ctabar.hide{display:none!important}\n\n@media(max-width:900px){\n  .layout{grid-template-columns:1fr}\n  .aside{display:none}\n  .ctabar{display:flex}\n}\n@media(max-width:600px){\n  body{font-size:16.5px}\n  .wrap{padding:0 16px}\n  .block{padding:18px}\n  .form-card{padding:20px 16px;border-radius:16px}\n  .two{grid-template-columns:1fr}\n  .seatbar li{grid-template-columns:100px 1fr auto}\n  .hero{padding:32px 0 28px}\n  .stepper small{display:none}\n}\n@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}\n@media print{.ctabar,.aside,.btn,.draft{display:none!important}.hero{background:#fff;color:#000}}\n";
+var CATALOG = "/* كتالوج الحقول والأقسام — مشترك بين الصفحات والأداة */\nvar GOVS = ['مسقط','ظفار','مسندم','البريمي','الداخلية','شمال الباطنة','جنوب الباطنة','شمال الشرقية','جنوب الشرقية','الظاهرة','الوسطى'];\n\nvar FIELDS = {\n  nationality:{label:'الجنسية',type:'radio',options:['عُماني','غير عُماني'],group:'هوية'},\n  dob:{label:'تاريخ الميلاد',type:'date',group:'هوية'},\n  name:{label:'الاسم الثلاثي',type:'text',auto:'name',group:'هوية'},\n  nid:{label:'رقم البطاقة الشخصية',type:'text',inputmode:'numeric',pattern:'^\\\\d{6,10}$',patternMsg:'أدخل رقم البطاقة أرقامًا فقط.',group:'هوية'},\n  whatsapp:{label:'رقم الواتساب',type:'tel',inputmode:'tel',auto:'tel',pattern:'^(\\\\+?968)?\\\\s?\\\\d{8}$',patternMsg:'أدخل رقمًا عُمانيًّا من ٨ أرقام.',hint:'مثال: 91234567',group:'تواصل'},\n  email:{label:'البريد الإلكتروني',type:'email',auto:'email',pattern:'^[^\\\\s@]+@[^\\\\s@]+\\\\.[^\\\\s@]+$',patternMsg:'صيغة البريد غير صحيحة.',group:'تواصل'},\n  gov:{label:'المحافظة',type:'select',options:GOVS,group:'تواصل'},\n  wilayat:{label:'الولاية',type:'text',group:'تواصل'},\n  edu:{label:'المؤهل العلمي',type:'select',options:['ثانوية عامة','دبلوم','بكالوريوس','ماجستير','دكتوراه'],group:'مؤهلات'},\n  major:{label:'التخصص',type:'text',group:'مؤهلات'},\n  exp:{label:'سنوات الخبرة في المجال',type:'select',options:['لا خبرة','أقل من سنة','١–٣ سنوات','٤–٦ سنوات','٧–١٠ سنوات','أكثر من ١٠ سنوات'],group:'مؤهلات'},\n  employer:{label:'جهة العمل الحالية أو الأخيرة',type:'text',group:'مؤهلات'},\n  hifz:{label:'هل تحفظ القرآن الكريم كاملًا من الفاتحة إلى الناس؟',type:'radio',options:['نعم','لا'],group:'قرآن'},\n  prior:{label:'هل التحقتَ ببرنامجٍ قرآنيٍّ من قبل؟',type:'radio',options:['نعم — برنامج «مكنون»','نعم — برنامج آخر','لا'],\n         reveal:{k:'prior_other',label:'حدِّد البرنامج',when:['نعم — برنامج آخر']},\n         hint:'لا يُبنى على هذا قبولٌ ولا ردّ — غايتُه أن نعرف من أين جاءت خبرتُك.',group:'قرآن'},\n  branch:{label:'الفرع المفضّل',type:'select',options:[],fromBranches:true,group:'وظيفة'},\n  english:{label:'مستوى اللغة الإنجليزية',type:'select',options:['IELTS','TOEFL','شهادة جامعية بالإنجليزية','لا أحمل شهادة'],\n           reveal:{k:'english_score',label:'الدرجة أو المستوى',not:['لا أحمل شهادة']},group:'مؤهلات'},\n  pay:{label:'الأجر الشهري المتوقع',type:'number',unit:'ر.ع',min:0,hint:'رقم بالريال العماني',group:'وظيفة'},\n  cv:{label:'السيرة الذاتية',type:'file',accept:'.pdf,.doc,.docx',hint:'PDF أو Word — حتى ٥ ميجابايت',group:'مرفقات'},\n  certs:{label:'الشهادات والمؤهلات',type:'file',accept:'.pdf,.jpg,.jpeg,.png',multiple:true,hint:'PDF أو صور — حتى ٥ ميجابايت للملف',group:'مرفقات'},\n  portfolio:{label:'رابط أعمالك',type:'url',hint:'موقع، حساب، أو ملف على الإنترنت',group:'مرفقات'},\n  cover:{label:'نبذة عنك ولماذا هذه الوظيفة؟',type:'textarea',max:600,hint:'بضعة أسطر تكفي',group:'أسئلة'},\n  essay:{label:'سؤال الوظيفة',type:'textarea',max:1200,hint:'اكتب بما تراه عمليًّا، لا بما تراه مثاليًّا',group:'أسئلة'},\n  ref1:{label:'مُزكٍّ أول (الاسم والهاتف والصلة)',type:'text',group:'مزكّون'},\n  ref2:{label:'مُزكٍّ ثانٍ (الاسم والهاتف والصلة)',type:'text',group:'مزكّون'}\n};\n\nvar BLOCKS = [\n  {k:'about',t:'عن الوظيفة',kind:'text'},\n  {k:'tasks',t:'ماذا ستفعل؟',kind:'lines'},\n  {k:'who',t:'من نبحث عنه؟',kind:'who'},\n  {k:'schedule',t:'الوقت والالتزام',kind:'pairs'},\n  {k:'branches',t:'الفروع والمقاعد المتاحة',kind:'pairs'},\n  {k:'pay',t:'الأجر',kind:'text'},\n  {k:'growth',t:'مسار الترقّي',kind:'lines'},\n  {k:'kpis',t:'كيف يُقاس نجاحك؟',kind:'lines'},\n  {k:'values',t:'خماسية السكينة في هذه الوظيفة',kind:'values'},\n  {k:'process',t:'ماذا بعد التقديم؟',kind:'pairs'}\n];\n\n/* أعمدة الخماسية — كما وردت في لوحة «قيم خماسية السكينة» */\nvar PILLARS = [\n  {id:'ibada',n:'عبادة',c:'#2E7D32',s:['الإيمان','الإحسان','قول الحسن','الصلاة','الإنفاق']},\n  {id:'ilm',n:'علم',c:'#B27800',s:['القرآن','البيان','دراسة العلوم','القراءة','الكتابة']},\n  {id:'amal',n:'عمل',c:'#1F5FBF',s:['الزراعة','العمل المنزلي','التجارة','الادخار والتثمير','العمل التطوعي']},\n  {id:'lab',n:'لعب',c:'#C2255C',s:['الرتع','اللعب بالدمى والمجسمات','الألعاب الحركية','الألعاب التقنية','الألعاب التمثيلية']},\n  {id:'nawm',n:'نوم وصحة',c:'#D9650B',s:['ماذا يفعل قبل النوم؟','النوم','ما بعد الاستيقاظ','الغذاء','الصحة']}\n];\n";
+var ENGINE = "/* محرّك عرض صفحة الوظيفة: يقرأ window.CONFIG ويبني الصفحة والاستمارة */\n(function(){\nvar C = window.CONFIG, B = C.blocks || {}, F = C.form || {};\nvar app = document.getElementById('app');\nvar STORE = 'jp:' + C.id, DONE = 'jp:done:' + C.id;\nvar t0 = Date.now();\n\nfunction esc(s){return String(s==null?'':s).replace(/[&<>\"']/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',\"'\":'&#39;'}[m]})}\nfunction on(k){return B[k] && B[k].on}\nfunction title(k){var d=BLOCKS.filter(function(b){return b.k===k})[0];return esc((B[k]&&B[k].title)||(d&&d.t)||'')}\nfunction ls(a){return Array.isArray(a)?a:String(a||'').split('\\n').map(function(x){return x.trim()}).filter(Boolean)}\nfunction safe(fn){try{return fn()}catch(e){return null}}\n\n/* ---------------- أقسام المحتوى ---------------- */\nfunction block(k){\n  if(!on(k)) return '';\n  var b=B[k], h='<section class=\"block'+(k==='pay'?' pay':'')+'\" id=\"b-'+k+'\"><h2>'+title(k)+'<\/h2>', body='';\n  if(k==='about'||k==='pay'){ body = ls(b.text).map(function(p){return '<p>'+esc(p)+'<\/p>'}).join('') }\n  else if(k==='tasks'){ body='<ul class=\"ticks\">'+ls(b.items).map(function(x){return '<li>'+esc(x)+'<\/li>'}).join('')+'<\/ul>' }\n  else if(k==='who'){\n    var must=ls(b.must), pref=ls(b.prefer);\n    body='<div class=\"'+(pref.length?'two':'')+'\"><div>'+(pref.length?'<h3>لا بدّ منه<\/h3>':'')+'<ul class=\"dots\">'+must.map(function(x){return '<li>'+esc(x)+'<\/li>'}).join('')+'<\/ul><\/div>'\n      +(pref.length?'<div><h3>يُقدَّم من عنده<\/h3><ul class=\"dots\">'+pref.map(function(x){return '<li>'+esc(x)+'<\/li>'}).join('')+'<\/ul><\/div>':'')+'<\/div>';\n  }\n  else if(k==='schedule'){ body='<dl class=\"rows\">'+(b.items||[]).map(function(r){return '<div><dt>'+esc(r.k)+'<\/dt><dd>'+esc(r.v)+'<\/dd><\/div>'}).join('')+'<\/dl>' }\n  else if(k==='branches'){\n    var rows=b.rows||[], mx=Math.max.apply(null,rows.map(function(r){return +r.seats||0}).concat([1]));\n    body='<ul class=\"seatbar\">'+rows.map(function(r){return '<li><span>'+esc(r.name)+'<\/span><i style=\"--w:'+Math.round((+r.seats||0)/mx*100)+'%\"><\/i><b>'+esc(r.seats)+'<\/b><\/li>'}).join('')+'<\/ul>';\n  }\n  else if(k==='growth'){ body='<ul class=\"path\">'+ls(b.items).map(function(x){return '<li><span>'+esc(x)+'<\/span><\/li>'}).join('')+'<\/ul>' }\n  else if(k==='kpis'){ body='<ul class=\"kpis\">'+ls(b.items).map(function(x){return '<li>'+esc(x)+'<\/li>'}).join('')+'<\/ul>' }\n  else if(k==='values'){\n    var emph=b.emph||[];\n    body='<div class=\"pillars\">'+PILLARS.map(function(p){var e=emph.indexOf(p.id)>-1;return '<div class=\"pillar'+(e?' on':'')+'\" style=\"--c:'+p.c+'\"><b>'+p.n+'<\/b>'+(e?'<em>محور أساسي لهذه الوظيفة<\/em>':'')+'<small>'+p.s.join(' · ')+'<\/small><\/div>'}).join('')+'<\/div>'\n      +(b.note?'<p style=\"margin-top:12px\">'+esc(b.note)+'<\/p>':'');\n  }\n  else if(k==='process'){ body='<ol class=\"steps\">'+(b.items||[]).map(function(r){return '<li><b>'+esc(r.k)+'<\/b>'+(r.v?'<span>'+esc(r.v)+'<\/span>':'')+'<\/li>'}).join('')+'<\/ol>' }\n  return h+body+'<\/section>';\n}\n\nfunction chips(){return (C.chips||[]).length?'<ul class=\"chips\">'+C.chips.map(function(c){return '<li><b>'+esc(c.k)+'<\/b>'+esc(c.v)+'<\/li>'}).join('')+'<\/ul>':''}\n\nfunction view(){\n  var order=BLOCKS.map(function(b){return b.k}), html=order.map(block).join('');\n  var single=C.tier==='light';\n  var aside='';\n  if(!single){\n    aside='<aside class=\"aside\"><div class=\"card\"><h3>ملخّص سريع<\/h3><dl class=\"rows\">'\n      +(C.chips||[]).map(function(c){return '<div><dt>'+esc(c.k)+'<\/dt><dd>'+esc(c.v)+'<\/dd><\/div>'}).join('')\n      +(C.deadline?'<div><dt>آخر موعد<\/dt><dd>'+esc(C.deadline)+'<\/dd><\/div>':'')\n      +'<\/dl><a class=\"btn btn-main\" href=\"#apply\">قدّم الآن<\/a><\/div><\/aside>';\n  }\n  return (C.draft?'<div class=\"draft\">نسخة تجريبية — راجِع النصوص والشروط قبل النشر (يُزال هذا الشريط بإيقاف خيار «مسودة»)<\/div>':'')\n   +'<header class=\"hero tier-'+esc(C.tier)+'\"><div class=\"wrap\"><div class=\"eyebrow\">'+esc(C.unit||'')+'<\/div><h1>'+esc(C.title)+'<\/h1>'\n   +(C.subtitle?'<p class=\"sub\">'+esc(C.subtitle)+'<\/p>':'')+chips()\n   +'<div class=\"hero-cta\"><a class=\"btn btn-gold\" href=\"#apply\">قدّم الآن<\/a>'+(html?'<a class=\"btn btn-ghost\" href=\"#details\">التفاصيل<\/a>':'')+'<\/div><\/div><\/header>'\n   +(html?'<div class=\"wrap layout'+(single?' single':'')+'\" id=\"details\"><div class=\"content\">'+html+'<\/div>'+aside+'<\/div>':'')\n   +'<section class=\"wrap apply\" id=\"apply\">'+formHTML()+'<\/section>'\n   +'<footer class=\"foot\"><div class=\"wrap\"><b>'+esc(C.org||'مجموعة العيسري')+'<\/b>'+(C.tagline?' — «'+esc(C.tagline)+'»':'')+'<\/div><\/footer>'\n   +'<div class=\"ctabar\" id=\"ctabar\"><span>'+esc(C.title)+'<\/span><a class=\"btn btn-main\" href=\"#apply\">قدّم الآن<\/a><\/div>';\n}\n\n/* ---------------- الاستمارة ---------------- */\nfunction fdef(f){\n  var d=Object.assign({},FIELDS[f.k]||{});\n  ['label','hint','options','max','min','unit','type'].forEach(function(p){if(f[p]!=null)d[p]=f[p]});\n  if(d.fromBranches){var rows=(B.branches&&B.branches.rows)||[];d.options=rows.map(function(r){return r.name})}\n  return d;\n}\nfunction fieldHTML(f){\n  var d=fdef(f), k=f.k, id='f_'+k, req=f.req, lab=esc(d.label)+(req?'<span class=\"req\" aria-hidden=\"true\">*<\/span>':'<span class=\"opt\">(اختياري)<\/span>');\n  var hint=d.hint?'<div class=\"hint\" id=\"h_'+k+'\">'+esc(d.hint)+'<\/div>':'', aria=d.hint?' aria-describedby=\"h_'+k+' e_'+k+'\"':' aria-describedby=\"e_'+k+'\"';\n  var ctl='';\n  if(d.type==='radio'){\n    ctl='<fieldset'+aria+'><legend>'+lab+'<\/legend><div class=\"choices'+(d.options.length<=3&&d.options.join('').length<30?' row':'')+'\">'\n      +d.options.map(function(o){return '<label class=\"choice\"><input type=\"radio\" name=\"'+k+'\" value=\"'+esc(o)+'\"><span>'+esc(o)+'<\/span><\/label>'}).join('')+'<\/div>'+hint+'<\/fieldset>';\n  } else {\n    var head='<label for=\"'+id+'\">'+lab+(d.type==='textarea'?'<span class=\"cnt\" data-cnt=\"'+k+'\"><\/span>':'')+'<\/label>';\n    if(d.type==='select') ctl=head+'<select class=\"input\" id=\"'+id+'\" name=\"'+k+'\"'+aria+'><option value=\"\">اختر…<\/option>'+d.options.map(function(o){return '<option>'+esc(o)+'<\/option>'}).join('')+'<\/select>'+hint;\n    else if(d.type==='textarea') ctl=head+'<textarea class=\"input\" id=\"'+id+'\" name=\"'+k+'\" maxlength=\"'+(d.max||1000)+'\"'+aria+'><\/textarea>'+hint;\n    else if(d.type==='file') ctl=head+'<div class=\"file\"><input type=\"file\" id=\"'+id+'\" name=\"'+k+'\" accept=\"'+esc(d.accept||'')+'\"'+(d.multiple?' multiple':'')+aria+'><\/div>'+hint;\n    else if(d.type==='number') ctl=head+'<div class=\"unit\"><input class=\"input\" id=\"'+id+'\" name=\"'+k+'\" type=\"number\" inputmode=\"decimal\" min=\"'+(d.min||0)+'\" step=\"any\"'+aria+'><span>'+esc(d.unit||'')+'<\/span><\/div>'+hint;\n    else if(d.type==='date') ctl=head+'<input class=\"input\" id=\"'+id+'\" name=\"'+k+'\" type=\"date\" min=\"1930-01-01\" max=\"'+new Date().toISOString().slice(0,10)+'\"'+aria+'>'+hint;\n    else ctl=head+'<input class=\"input\" id=\"'+id+'\" name=\"'+k+'\" type=\"'+(d.type||'text')+'\"'+(d.inputmode?' inputmode=\"'+d.inputmode+'\"':'')+(d.auto?' autocomplete=\"'+d.auto+'\"':'')+aria+'>'+hint;\n  }\n  var rv='';\n  if(d.reveal){\n    var r=d.reveal;\n    rv='<div class=\"reveal\" hidden data-src=\"'+k+'\" data-when=\\''+esc(JSON.stringify(r.when||[]))+'\\' data-not=\\''+esc(JSON.stringify(r.not||[]))+'\\'><label for=\"f_'+r.k+'\">'+esc(r.label)+'<\/label><input class=\"input\" id=\"f_'+r.k+'\" name=\"'+r.k+'\" type=\"text\"><\/div>';\n  }\n  return '<div class=\"field\" data-k=\"'+k+'\" data-req=\"'+(req?1:0)+'\">'+ctl+rv+'<div class=\"gate\" hidden><\/div><div class=\"err\" id=\"e_'+k+'\" role=\"alert\"><\/div><\/div>';\n}\nfunction formHTML(){\n  var steps=F.steps||[], multi=steps.length>1;\n  var st=multi?'<ol class=\"stepper\" aria-label=\"مراحل الاستمارة\">'+steps.map(function(s,i){return '<li data-i=\"'+i+'\"><span>'+esc(s.title||('الخطوة '+(i+1)))+'<\/span>'+(s.desc?'<small>'+esc(s.desc)+'<\/small>':'')+'<\/li>'}).join('')+'<\/ol>':'';\n  var body=steps.map(function(s,i){\n    return '<div class=\"step\" data-step=\"'+i+'\"'+(i?' hidden':'')+'>'+(!multi&&s.title?'':'')+(s.fields||[]).map(function(f){return f.h?'<div class=\"grp\">'+esc(f.h)+'<\/div>':fieldHTML(f)}).join('')+'<\/div>';\n  }).join('');\n  var consent='<label class=\"consent\" data-k=\"consent\"><input type=\"checkbox\" name=\"consent\" id=\"f_consent\"><span>'+esc(F.consent||'أُقرّ بصحة ما أدخلتُ من بيانات، وأوافق على استخدامها لأغراض التوظيف فقط.')+'<\/span><\/label><div class=\"err\" id=\"e_consent\" role=\"alert\"><\/div>';\n  return '<div class=\"form-card\"><h2>'+esc(F.title||'استمارة التقدّم')+'<\/h2>'+(F.lead?'<p class=\"lead\">'+esc(F.lead)+'<\/p>':'')\n   +'<div id=\"dupe\" class=\"notice\" hidden><\/div>'+st\n   +'<form id=\"jf\" novalidate><div class=\"hp\" aria-hidden=\"true\"><label>الموقع<input type=\"text\" name=\"website\" tabindex=\"-1\" autocomplete=\"off\"><\/label><\/div>'+body+consent\n   +'<div class=\"blocked\" id=\"blocked\" hidden aria-live=\"polite\"><\/div>'\n   +'<div class=\"actions\"><button type=\"button\" class=\"btn btn-line\" id=\"back\" hidden>السابق<\/button><button type=\"button\" class=\"btn btn-main\" id=\"next\">'+(multi?'التالي':'إرسال الطلب')+'<\/button><\/div><\/form>'\n   +'<div class=\"success\" id=\"ok\" hidden><div class=\"tick\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#1C463C\" stroke-width=\"2.6\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M5 12.5l4.5 4.5L19 7.5\"/><\/svg><\/div><h3>وصلَنا طلبُك<\/h3><p>'+esc(F.success||'سيصلك الردّ خلال أسبوعين، قُبلتَ أو لم تُقبَل.')+'<\/p><p id=\"refline\"><\/p><div class=\"demo\" id=\"demo\" hidden>وضع التجربة: لم يُرسَل شيء لأن عنوان الاستلام لم يُضبط بعد.<\/div><\/div><\/div>';\n}\n\n/* ---------------- السلوك ---------------- */\nfunction init(){\n  var form=document.getElementById('jf'); if(!form) return;\n  var steps=[].slice.call(form.querySelectorAll('.step')), cur=0, multi=steps.length>1;\n  var fields={}; (F.steps||[]).forEach(function(s){(s.fields||[]).forEach(function(f){if(f.k)fields[f.k]=f})});\n  var btnN=document.getElementById('next'), btnB=document.getElementById('back'), blocked=document.getElementById('blocked');\n\n  function val(k){var el=form.elements[k]; if(!el) return ''; if(el.type==='file') return el.files; if(el.type==='checkbox') return el.checked; return (el.value||'').trim()}\n  function age(s){if(!s) return null; var d=new Date(s), n=new Date(); if(isNaN(d)) return null; var a=n.getFullYear()-d.getFullYear(); var m=n.getMonth()-d.getMonth(); if(m<0||(m===0&&n.getDate()<d.getDate())) a--; return a}\n  function wrap(k){return form.querySelector('.field[data-k=\"'+k+'\"]')}\n  function setErr(k,msg){var w=wrap(k); if(!w) return; w.classList.toggle('bad',!!msg); var e=w.querySelector('.err'); e.textContent=msg||''}\n  function hiddenField(k){var w=wrap(k); return !w || !!w.closest('[hidden]')}\n\n  function gateFail(k){\n    var g=fields[k]&&fields[k].gate; if(!g) return '';\n    var v=val(k); if(!v) return '';\n    if(g.eq && v!==g.eq) return g.msg||'لا تنطبق عليك شروط هذه الوظيفة.';\n    if(g.minAge){var a=age(v); if(a!==null && a<g.minAge) return g.msg||('يُشترط ألّا يقلّ العمر عن '+g.minAge+' سنة.')}\n    return '';\n  }\n  function refreshGates(){\n    var msgs=[];\n    Object.keys(fields).forEach(function(k){\n      if(!fields[k].gate) return;\n      var m=gateFail(k), w=wrap(k), g=w.querySelector('.gate');\n      g.hidden=!m; g.textContent=m||''; if(m) msgs.push(m);\n    });\n    if(msgs.length){blocked.hidden=false;blocked.textContent='لا يمكن إرسال الطلب حاليًّا: '+msgs[0]+' إن كان اختيارك خاطئًا فعدِّله.'}\n    else blocked.hidden=true;\n    return msgs.length;\n  }\n  function refreshReveals(){\n    [].forEach.call(form.querySelectorAll('.reveal'),function(r){\n      var v=val(r.getAttribute('data-src')), when=JSON.parse(r.getAttribute('data-when')), not=JSON.parse(r.getAttribute('data-not'));\n      var show = when.length ? when.indexOf(v)>-1 : (v && not.indexOf(v)===-1);\n      r.hidden=!show;\n    });\n  }\n  function validateField(k){\n    if(hiddenField(k)) {setErr(k,'');return true}\n    var f=fields[k], d=fdef(f), v=val(k), msg='';\n    var empty = d.type==='file' ? (!v||!v.length) : !v;\n    if(f.req && empty) msg = d.type==='radio'||d.type==='select' ? 'اختر إجابة.' : d.type==='file' ? 'أرفق الملف المطلوب.' : 'هذا الحقل مطلوب.';\n    else if(!empty){\n      if(d.type==='file'){\n        var max=(F.maxMB||5)*1048576, ok=(d.accept||'').split(',').map(function(x){return x.trim().toLowerCase()}).filter(Boolean);\n        for(var i=0;i<v.length;i++){\n          var nm=v[i].name.toLowerCase(), ex=nm.slice(nm.lastIndexOf('.'));\n          if(ok.length && ok.indexOf(ex)===-1){msg='صيغة الملف غير مقبولة ('+ok.join('، ')+').';break}\n          if(v[i].size>max){msg='حجم الملف أكبر من '+(F.maxMB||5)+' ميجابايت.';break}\n        }\n      } else if(d.pattern && !new RegExp(d.pattern).test(v.replace(/[٠-٩]/g,function(c){return c.charCodeAt(0)-1632}))) msg=d.patternMsg||'القيمة غير صحيحة.';\n      else if(d.type==='url' && !/^https?:\\/\\/.+\\..+/i.test(v)) msg='أدخل رابطًا يبدأ بـ https://';\n      else if(d.type==='number' && (isNaN(+v)||+v<0)) msg='أدخل رقمًا صحيحًا.';\n    }\n    setErr(k,msg); return !msg;\n  }\n  function validateStep(i){\n    var bad=null;\n    [].forEach.call(steps[i].querySelectorAll('.field'),function(w){var k=w.getAttribute('data-k'); if(!validateField(k)&&!bad) bad=k});\n    if(i===steps.length-1){\n      var ok=form.elements.consent.checked; setErr2('consent',ok?'':'يلزم الإقرار لإرسال الطلب.'); if(!ok&&!bad) bad='consent';\n    }\n    if(bad){var w=bad==='consent'?form.querySelector('.consent'):wrap(bad), el=w&&w.querySelector('input,select,textarea'); if(el){el.focus({preventScroll:true});el.scrollIntoView({block:'center',behavior:'smooth'})}}\n    return !bad;\n  }\n  function setErr2(k,msg){document.getElementById('e_'+k).textContent=msg}\n\n  function show(i,scroll){\n    cur=i; steps.forEach(function(s,j){s.hidden=j!==i});\n    [].forEach.call(document.querySelectorAll('.stepper li'),function(li,j){li.className=j<i?'done':j===i?'cur':''});\n    btnB.hidden=i===0; btnN.textContent = i===steps.length-1 ? 'إرسال الطلب' : 'التالي';\n    var consent=form.querySelector('.consent'), ce=document.getElementById('e_consent');\n    consent.hidden=ce.hidden=i!==steps.length-1;\n    /* التمرير إلى بداية الاستمارة عند تغيير الخطوة فقط، لا عند أول عرض للصفحة */\n    if(multi&&scroll){var top=document.getElementById('apply');top.scrollIntoView({behavior:'smooth',block:'start'})}\n  }\n  btnB.addEventListener('click',function(){show(cur-1,true)});\n  btnN.addEventListener('click',function(){\n    if(!validateStep(cur)) return;\n    if(refreshGates()) {blocked.scrollIntoView({block:'center',behavior:'smooth'});return}\n    if(cur<steps.length-1) return show(cur+1,true);\n    send();\n  });\n\n  /* حفظ المسودة محليًّا */\n  function save(){safe(function(){var o={};[].forEach.call(form.elements,function(el){if(!el.name||el.type==='file'||el.name==='website'||el.name==='consent')return;if(el.type==='radio'){if(el.checked)o[el.name]=el.value}else o[el.name]=el.value});localStorage.setItem(STORE,JSON.stringify(o))})}\n  function restore(){safe(function(){var o=JSON.parse(localStorage.getItem(STORE)||'null'); if(!o) return;\n    Object.keys(o).forEach(function(k){var el=form.elements[k]; if(!el||!o[k]) return; if(el.length&&el[0]&&el[0].type==='radio'){[].forEach.call(el,function(r){r.checked=r.value===o[k]})} else el.value=o[k]})})}\n  form.addEventListener('input',function(e){\n    var t=e.target; if(t.name&&fields[t.name]) setErr(t.name,'');\n    if(t.tagName==='TEXTAREA'){var c=form.querySelector('[data-cnt=\"'+t.name+'\"]'); if(c) c.textContent=t.value.length+' / '+t.maxLength}\n    refreshReveals(); refreshGates(); save();\n  });\n  form.addEventListener('change',function(e){var t=e.target; if(t.name&&fields[t.name]) validateField(t.name); refreshReveals(); refreshGates()});\n  form.addEventListener('keydown',function(e){if(e.key==='Enter'&&e.target.tagName!=='TEXTAREA'){e.preventDefault()}});\n\n  function send(){\n    if(form.elements.website.value){return done()} /* فخّ الآلات: نُظهر نجاحًا شكليًّا دون إرسال */\n    var fd=new FormData(form); fd.delete('website'); fd.append('job_id',C.id); fd.append('job_title',C.title); fd.append('tier',C.tier);\n    /* PHP لا يقرأ من الاسم المكرَّر إلا آخر ملف، فنرسل الملفات المتعددة بصيغة name[] */\n    [].forEach.call(form.querySelectorAll('input[type=file][multiple]'),function(inp){fd.delete(inp.name);[].forEach.call(inp.files,function(f){fd.append(inp.name+'[]',f)})});\n    btnN.disabled=true; btnN.textContent='جارٍ الإرسال…';\n    if(!F.endpoint){ setTimeout(function(){done(null,true)},500); return }\n    fetch(F.endpoint,{method:'POST',body:fd}).then(function(r){if(!r.ok) throw 0; return r.json().catch(function(){return {}})})\n      .then(function(j){done(j&&j.ref)}).catch(function(){btnN.disabled=false;btnN.textContent='إعادة المحاولة';blocked.hidden=false;blocked.textContent='تعذّر الإرسال الآن. تأكد من الاتصال ثم أعد المحاولة، ولن تضيع بياناتك.'});\n  }\n  function done(ref,demo){\n    safe(function(){localStorage.setItem(DONE,new Date().toISOString());localStorage.removeItem(STORE)});\n    form.hidden=true; var s=document.getElementById('ok'); s.hidden=false;\n    if(ref) document.getElementById('refline').textContent='رقم طلبك: '+ref;\n    if(demo) document.getElementById('demo').hidden=false;\n    document.querySelector('.stepper')&&(document.querySelector('.stepper').hidden=true);\n    s.scrollIntoView({block:'center',behavior:'smooth'});\n  }\n\n  var prev=safe(function(){return localStorage.getItem(DONE)});\n  if(prev){var d=document.getElementById('dupe'); d.hidden=false; d.textContent='سبق أن أرسلتَ طلبًا على هذه الوظيفة من هذا المتصفح. لا حاجة لإعادة الإرسال، ويمكنك ذلك إن أردت تصحيح بياناتك.'}\n  restore(); refreshReveals(); refreshGates(); show(0);\n  [].forEach.call(form.querySelectorAll('textarea'),function(t){var c=form.querySelector('[data-cnt=\"'+t.name+'\"]'); if(c) c.textContent=t.value.length+' / '+t.maxLength});\n  /* شريط التقديم في الجوال يختفي عند ظهور الاستمارة */\n  if('IntersectionObserver' in window){var bar=document.getElementById('ctabar'); var vis={};var io=new IntersectionObserver(function(en){en.forEach(function(x){vis[x.target.id||'hero']=x.isIntersecting});bar.classList.toggle('hide',!!(vis.apply||vis.hero))});io.observe(document.getElementById('apply'));var hr=document.querySelector('.hero');if(hr)io.observe(hr)}\n}\n\ndocument.title=C.title+' — '+(C.org||'مجموعة العيسري');\napp.innerHTML=view(); init();\n})();\n";
+/* كتالوج الحقول والأقسام — مشترك بين الصفحات والأداة */
+var GOVS = ['مسقط','ظفار','مسندم','البريمي','الداخلية','شمال الباطنة','جنوب الباطنة','شمال الشرقية','جنوب الشرقية','الظاهرة','الوسطى'];
+
+var FIELDS = {
+  nationality:{label:'الجنسية',type:'radio',options:['عُماني','غير عُماني'],group:'هوية'},
+  dob:{label:'تاريخ الميلاد',type:'date',group:'هوية'},
+  name:{label:'الاسم الثلاثي',type:'text',auto:'name',group:'هوية'},
+  nid:{label:'رقم البطاقة الشخصية',type:'text',inputmode:'numeric',pattern:'^\\d{6,10}$',patternMsg:'أدخل رقم البطاقة أرقامًا فقط.',group:'هوية'},
+  whatsapp:{label:'رقم الواتساب',type:'tel',inputmode:'tel',auto:'tel',pattern:'^(\\+?968)?\\s?\\d{8}$',patternMsg:'أدخل رقمًا عُمانيًّا من ٨ أرقام.',hint:'مثال: 91234567',group:'تواصل'},
+  email:{label:'البريد الإلكتروني',type:'email',auto:'email',pattern:'^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$',patternMsg:'صيغة البريد غير صحيحة.',group:'تواصل'},
+  gov:{label:'المحافظة',type:'select',options:GOVS,group:'تواصل'},
+  wilayat:{label:'الولاية',type:'text',group:'تواصل'},
+  edu:{label:'المؤهل العلمي',type:'select',options:['ثانوية عامة','دبلوم','بكالوريوس','ماجستير','دكتوراه'],group:'مؤهلات'},
+  major:{label:'التخصص',type:'text',group:'مؤهلات'},
+  exp:{label:'سنوات الخبرة في المجال',type:'select',options:['لا خبرة','أقل من سنة','١–٣ سنوات','٤–٦ سنوات','٧–١٠ سنوات','أكثر من ١٠ سنوات'],group:'مؤهلات'},
+  employer:{label:'جهة العمل الحالية أو الأخيرة',type:'text',group:'مؤهلات'},
+  hifz:{label:'هل تحفظ القرآن الكريم كاملًا من الفاتحة إلى الناس؟',type:'radio',options:['نعم','لا'],group:'قرآن'},
+  prior:{label:'هل التحقتَ ببرنامجٍ قرآنيٍّ من قبل؟',type:'radio',options:['نعم — برنامج «مكنون»','نعم — برنامج آخر','لا'],
+         reveal:{k:'prior_other',label:'حدِّد البرنامج',when:['نعم — برنامج آخر']},
+         hint:'لا يُبنى على هذا قبولٌ ولا ردّ — غايتُه أن نعرف من أين جاءت خبرتُك.',group:'قرآن'},
+  branch:{label:'الفرع المفضّل',type:'select',options:[],fromBranches:true,group:'وظيفة'},
+  english:{label:'مستوى اللغة الإنجليزية',type:'select',options:['IELTS','TOEFL','شهادة جامعية بالإنجليزية','لا أحمل شهادة'],
+           reveal:{k:'english_score',label:'الدرجة أو المستوى',not:['لا أحمل شهادة']},group:'مؤهلات'},
+  pay:{label:'الأجر الشهري المتوقع',type:'number',unit:'ر.ع',min:0,hint:'رقم بالريال العماني',group:'وظيفة'},
+  cv:{label:'السيرة الذاتية',type:'file',accept:'.pdf,.doc,.docx',hint:'PDF أو Word — حتى ٥ ميجابايت',group:'مرفقات'},
+  certs:{label:'الشهادات والمؤهلات',type:'file',accept:'.pdf,.jpg,.jpeg,.png',multiple:true,hint:'PDF أو صور — حتى ٥ ميجابايت للملف',group:'مرفقات'},
+  portfolio:{label:'رابط أعمالك',type:'url',hint:'موقع، حساب، أو ملف على الإنترنت',group:'مرفقات'},
+  cover:{label:'نبذة عنك ولماذا هذه الوظيفة؟',type:'textarea',max:600,hint:'بضعة أسطر تكفي',group:'أسئلة'},
+  essay:{label:'سؤال الوظيفة',type:'textarea',max:1200,hint:'اكتب بما تراه عمليًّا، لا بما تراه مثاليًّا',group:'أسئلة'},
+  ref1:{label:'مُزكٍّ أول (الاسم والهاتف والصلة)',type:'text',group:'مزكّون'},
+  ref2:{label:'مُزكٍّ ثانٍ (الاسم والهاتف والصلة)',type:'text',group:'مزكّون'}
+};
+
+var BLOCKS = [
+  {k:'about',t:'عن الوظيفة',kind:'text'},
+  {k:'tasks',t:'ماذا ستفعل؟',kind:'lines'},
+  {k:'who',t:'من نبحث عنه؟',kind:'who'},
+  {k:'schedule',t:'الوقت والالتزام',kind:'pairs'},
+  {k:'branches',t:'الفروع والمقاعد المتاحة',kind:'pairs'},
+  {k:'pay',t:'الأجر',kind:'text'},
+  {k:'growth',t:'مسار الترقّي',kind:'lines'},
+  {k:'kpis',t:'كيف يُقاس نجاحك؟',kind:'lines'},
+  {k:'values',t:'خماسية السكينة في هذه الوظيفة',kind:'values'},
+  {k:'process',t:'ماذا بعد التقديم؟',kind:'pairs'}
+];
+
+/* أعمدة الخماسية — كما وردت في لوحة «قيم خماسية السكينة» */
+var PILLARS = [
+  {id:'ibada',n:'عبادة',c:'#2E7D32',s:['الإيمان','الإحسان','قول الحسن','الصلاة','الإنفاق']},
+  {id:'ilm',n:'علم',c:'#B27800',s:['القرآن','البيان','دراسة العلوم','القراءة','الكتابة']},
+  {id:'amal',n:'عمل',c:'#1F5FBF',s:['الزراعة','العمل المنزلي','التجارة','الادخار والتثمير','العمل التطوعي']},
+  {id:'lab',n:'لعب',c:'#C2255C',s:['الرتع','اللعب بالدمى والمجسمات','الألعاب الحركية','الألعاب التقنية','الألعاب التمثيلية']},
+  {id:'nawm',n:'نوم وصحة',c:'#D9650B',s:['ماذا يفعل قبل النوم؟','النوم','ما بعد الاستيقاظ','الغذاء','الصحة']}
+];
+
+/* القوالب الأربعة. المحتوى المأخوذ من ملفات المشروع موسوم بـ [مصدر]، وغيره نص تجريبي يُراجَع قبل النشر */
+var PRESET_META = {
+  light:{name:'خفيفة',desc:'وظيفة يسيرة أو تطوعية: صفحة واحدة، بلا سيرة ذاتية، شاشة استمارة واحدة',ex:'مثال: مشرف «ربانيين»'},
+  teaching:{name:'تعليمية',desc:'معلمة أو مساعدة معلمة: اختيار الفرع، المؤهل واللغة، خطوتان',ex:'مثال: معلمة لغة إنجليزية'},
+  admin:{name:'إدارية / تخصصية',desc:'منسقة، محاسبة، تسويق…: سيرة ذاتية وخبرة وروابط أعمال، ثلاث خطوات',ex:'مثال: مسؤول التسويق الرقمي'},
+  executive:{name:'قيادية',desc:'مدير إدارة أو مدير تنفيذي: مؤشرات نجاح، سؤال تحليلي، مزكّون، أربع خطوات',ex:'مثال: مدير الموارد البشرية'}
+};
+
+var PRESETS = {
+
+light:{
+  id:'rabbaniyyin-supervisor', tier:'light', draft:false,
+  org:'مجموعة العيسري', unit:'بِيرُحاء إبراء · مجموعة العيسري', tagline:'نُعِدُّهم لحياةٍ طيّبة',
+  title:'مشرفٌ في برنامج «ربانيين»',
+  subtitle:'برنامج حفظٍ للفتيان من الصف السابع إلى الثاني عشر، عن بُعد',
+  chips:[{k:'الفئة',v:'فتيان ٧–١٢'},{k:'النمط',v:'عن بُعد + ليلتان في بيرحاء'},{k:'المتابعة',v:'٧ – ١٠ فتيان لكل مشرف'}],
+  deadline:'',
+  blocks:{
+    about:{on:true,title:'عن البرنامج',text:'برنامجُ حفظٍ للفتيان من الصف السابع إلى الثاني عشر، عن بعد؛ بقيادة عبدالله العيسري وإبراهيم الغافري، ضمن فعاليات بيرحاء الطويلة. يهدف إلى تخريج حفاظ متقنين. نبحث اليوم عن مشرفين لفريقه الأول.'},
+    tasks:{on:true,title:'ماذا يفعل المشرف؟',items:['يتابع من ٧ إلى ١٠ فتيان، ويعرف كلَّ واحدٍ منهم باسمه.','يرصد الغيابَ والفتور، ويتواصل قبل أن ينقطع الفتى لا بعده.','يحضر ليلتَين في بيرحاء للتسميع للفتيان عند فراغهم من حفظ جزء.']},
+    who:{on:true,title:'من نبحث عنه؟',must:['عُمانيٌّ، لا يقلّ عمرُه عن ٢١ سنة.','حافظٌ للقرآن من الفاتحة إلى الناس، ويكون من مخرجات جهات تحفيظ حازمة.','حازمٌ برفق، صبورٌ على المراهقين.','سجلٌّ نظيف وشهادةُ حسن سيرة.'],prefer:['خبرةُ إشرافٍ سابقة.','أو التحاقٌ ببرنامج «مكنون» أو ما شابهه.']},
+    schedule:{on:true,title:'كم يأخذ من وقتك؟',items:[{k:'وِرد الحفظ اليومي الجديد',v:'٤ أيام في الأسبوع — نحو دقيقتين يوميًّا'},{k:'الحفظ التراكمي الأسبوعي',v:'مرة في الأسبوع — نحو ٥ دقائق'},{k:'التراكمي من أول يوم',v:'مرة كل أسبوعين — من ١٠ إلى ٣٠ دقيقة'}]},
+    branches:{on:false,rows:[]},
+    pay:{on:true,title:'الأجر',text:'بالفتى شهريًّا، ويرتفع بارتفاع النطاق ومدة الخدمة. يُنشَر سلَّمُ الأجور على موقعنا قبل أيِّ تعاقد، فلا مساومةَ فردية.'},
+    growth:{on:true,title:'مسار الترقّي',items:['مشرف','مُجيز','قائد مسار']},
+    kpis:{on:false,items:[]},
+    values:{on:false,emph:[]},
+    process:{on:true,title:'ماذا بعد التقديم؟',items:[{k:'تملأ الاستمارة',v:'دقائق معدودة'},{k:'نراجع طلبك',v:''},{k:'يصلك الردّ خلال أسبوعين',v:'قُبلتَ أو لم تُقبَل'}]}
+  },
+  form:{
+    title:'استمارةُ التقدّم', lead:'نبدأ بثلاثة شروط، فإن انطبقت عليك أكملتَ بقية البيانات. لا نطلب سيرة ذاتية، ولا رقم البطاقة إلا بعد القبول.',
+    endpoint:'', maxMB:5, success:'سيصلك الردّ خلال أسبوعين، قُبلتَ أو لم تُقبَل.',
+    steps:[{title:'',fields:[
+      {h:'الشروط الأساسية'},
+      {k:'nationality',req:true,gate:{eq:'عُماني',msg:'هذه الوظيفة مخصّصة للعُمانيين.'}},
+      {k:'dob',req:true,hint:'يُشترط ألّا يقلّ العمر عن ٢١ سنة',gate:{minAge:21,msg:'يُشترط ألّا يقلّ العمر عن ٢١ سنة.'}},
+      {k:'hifz',req:true,gate:{eq:'نعم',msg:'يُشترط حفظ القرآن الكريم كاملًا من الفاتحة إلى الناس.'}},
+      {h:'بياناتك'},
+      {k:'name',req:true},{k:'whatsapp',req:true},{k:'email',req:true},{k:'gov',req:true},{k:'edu',req:false,options:['دبلوم','بكالوريوس','أعلى من بكالوريوس']},
+      {h:'خبرتك القرآنية'},
+      {k:'prior',req:true},
+      {h:'المكافأة'},
+      {k:'pay',req:true,label:'في تقديرك، كم ينبغي أن تكون المكافأةُ الشهريةُ عن الفتى الواحد؟',hint:'رقم بالريال العماني'}
+    ]}]
+  }
+},
+
+teaching:{
+  id:'teacher-english-2026', tier:'teaching', draft:true,
+  org:'مجموعة العيسري', unit:'مدرسة القارئ العبقري', tagline:'نُعِدُّهم لحياةٍ طيّبة',
+  title:'معلمة لغة إنجليزية',
+  subtitle:'انضمي إلى فريق التدريس في أحد فروعنا للعام الدراسي ٢٠٢٦–٢٠٢٧',
+  chips:[{k:'الدوام',v:'العام الدراسي ٢٠٢٦–٢٠٢٧'},{k:'عدد المقاعد',v:'١٣ في ٨ فروع'}],
+  deadline:'',
+  blocks:{
+    about:{on:true,title:'عن الوظيفة',text:'نبحث عن معلمات للغة الإنجليزية في فروع مدرسة القارئ العبقري، يُعلِّمن الطالبات بطريقةٍ تجمع بين الإتقان والمحبة، ضمن منظومة قيمية تقوم على خماسية السكينة.'},
+    tasks:{on:true,title:'ماذا ستفعلين؟',items:['تدريس اللغة الإنجليزية وفق منهج المدرسة وخطتها السنوية.','متابعة تقدّم كل طالبة والتواصل مع أسرتها.','المشاركة في الأنشطة والبرامج القيمية للفرع.']},
+    who:{on:true,title:'من نبحث عنها؟',must:['مؤهل جامعي مناسب للتدريس (يُحدَّد قبل النشر).','إتقان اللغة الإنجليزية، مع شهادة إجادة معتمدة.','التزام بقيم المدرسة وسلوكها التربوي.'],prefer:['خبرة سابقة في التدريس.','معرفة بالتعليم القائم على المشروعات.']},
+    schedule:{on:false,items:[]},
+    branches:{on:true,title:'الفروع والمقاعد المتاحة',rows:[{name:'الخوض',seats:3},{name:'العذيبة',seats:2},{name:'إبراء',seats:2},{name:'الموالح',seats:2},{name:'العامرات',seats:1},{name:'المعبيلة الثامنة',seats:1},{name:'بدبد',seats:1},{name:'صور',seats:1}]},
+    pay:{on:false,text:''},
+    growth:{on:false,items:[]},
+    kpis:{on:false,items:[]},
+    values:{on:true,title:'قيمُنا في الفصل',emph:['ibada','ilm'],note:'نبحث عن معلمة تعيش هذه القيم قبل أن تُعلِّمها.'},
+    process:{on:true,title:'ماذا بعد التقديم؟',items:[{k:'نراجع طلبك',v:'ونتواصل معك عبر الواتساب'},{k:'مقابلة قصيرة',v:'مع مديرة الفرع والمنسقة'},{k:'القرار',v:'يصلك الردّ خلال أسبوعين'}]}
+  },
+  form:{
+    title:'استمارةُ التقدّم', lead:'خطوتان قصيرتان. لا نطلب رقم البطاقة الآن.',
+    endpoint:'', maxMB:5, success:'سيصلك الردّ خلال أسبوعين، قُبلتِ أو لم تُقبَلي.',
+    steps:[
+      {title:'عنكِ',fields:[{k:'name',req:true},{k:'whatsapp',req:true},{k:'email',req:true},{k:'gov',req:true},{k:'branch',req:true,hint:'الفروع المعروضة هي التي فيها مقاعد شاغرة فقط'}]},
+      {title:'مؤهلاتكِ',fields:[{k:'edu',req:true},{k:'major',req:true},{k:'english',req:true},{k:'exp',req:true},{h:'مرفقات'},{k:'cv',req:true},{k:'certs',req:false}]}
+    ]
+  }
+},
+
+admin:{
+  id:'admin-digital-marketing', tier:'admin', draft:true,
+  org:'مجموعة العيسري', unit:'المركز الرئيسي · إدارة التسويق والتسجيل', tagline:'نُعِدُّهم لحياةٍ طيّبة',
+  title:'مسؤول/ة التسويق الرقمي والسوشيال ميديا',
+  subtitle:'تصنعين حضور المجموعة على الشاشات وتحوّلينه إلى تسجيلٍ فعلي',
+  chips:[{k:'الموقع',v:'المركز الرئيسي'},{k:'الدوام',v:'دوام كامل'},{k:'تتبع',v:'مدير التسويق والتسجيل'}],
+  deadline:'',
+  blocks:{
+    about:{on:true,title:'عن الوظيفة',text:'وظيفة جديدة في هيكلنا التنظيمي ٢٠٢٦–٢٠٢٧. تقودين الحضور الرقمي للمجموعة وكياناتها، وتربطين المحتوى بأهداف التسجيل والقبول.'},
+    tasks:{on:true,title:'ماذا ستفعل؟',items:['إدارة حسابات المجموعة على منصات التواصل وتقويم النشر.','تخطيط الحملات الإعلانية وقياس نتائجها بالأرقام.','التنسيق مع التصميم والمحتوى المرئي ومركز الاتصالات.','رفع تقرير شهري بالأثر على التسجيل.']},
+    who:{on:true,title:'من نبحث عنه؟',must:['خبرة عملية في التسويق الرقمي (تُحدَّد المدة قبل النشر).','إتقان أدوات الإعلانات والتحليلات.','كتابة عربية سليمة وحسٌّ بصري جيد.'],prefer:['خبرة في التعليم أو الخدمات الأسرية.']},
+    schedule:{on:false,items:[]},
+    branches:{on:false,rows:[]},
+    pay:{on:true,title:'الأجر',text:'وفق سلّم الوظائف المعتمد في المجموعة، ويُعلَن قبل التعاقد.'},
+    growth:{on:false,items:[]},
+    kpis:{on:true,title:'كيف يُقاس نجاحك؟',items:['عدد الاستفسارات المؤهَّلة شهريًّا','تكلفة الاستفسار الواحد','نسبة التحويل إلى تسجيل','نمو الجمهور المستهدف']},
+    values:{on:false,emph:[]},
+    process:{on:true,title:'ماذا بعد التقديم؟',items:[{k:'فرز الطلبات',v:'بحسب الخبرة وروابط الأعمال'},{k:'مهمة قصيرة',v:'نطلب منك تصوّرًا لحملة'},{k:'مقابلة وقرار',v:'والردّ خلال أسبوعين'}]}
+  },
+  form:{
+    title:'استمارةُ التقدّم', lead:'ثلاث خطوات قصيرة.',
+    endpoint:'', maxMB:5, success:'سيصلك الردّ خلال أسبوعين.',
+    steps:[
+      {title:'من أنت',fields:[{k:'name',req:true},{k:'nationality',req:true},{k:'whatsapp',req:true},{k:'email',req:true},{k:'gov',req:true}]},
+      {title:'خبرتك',fields:[{k:'edu',req:true},{k:'major',req:false},{k:'exp',req:true},{k:'employer',req:false},{k:'cv',req:true},{k:'portfolio',req:true,hint:'حسابات أو حملات أو مواد صنعتَها'}]},
+      {title:'لماذا أنت',fields:[{k:'cover',req:true,label:'أخبرنا عن أفضل حملة أو محتوى أدرتَه، وما النتيجة بالأرقام؟',max:700}]}
+    ]
+  }
+},
+
+executive:{
+  id:'exec-hr-director', tier:'executive', draft:true,
+  org:'مجموعة العيسري العالمية', unit:'مدرسة القارئ العبقري · الإدارة التنفيذية', tagline:'نُعِدُّهم لحياةٍ طيّبة',
+  title:'مدير الموارد البشرية',
+  subtitle:'تبني رأس المال البشري لمدرسة تنمو، وتجعل الأثر مقياسَ النجاح',
+  chips:[{k:'الدوام',v:'كامل — المركز المؤسسي مع زيارات للفروع'},{k:'يتبع',v:'الرئيس التنفيذي'},{k:'الخبرة',v:'٧–١٠ سنوات'}],
+  deadline:'',
+  blocks:{
+    about:{on:true,title:'الهدف العام للوظيفة',text:'بناء وتطوير رأس المال البشري، وجذب الكفاءات والاحتفاظ بها، ودعم تنفيذ خطة تعظيم الأثر بتطوير الموظفين وتعزيز ثقافة خماسية السكينة.'},
+    tasks:{on:true,title:'ما تقوده',items:['منظومة الاستقطاب والاختيار والتعيين والتهيئة.','إدارة الأداء ونظام الأجور والمزايا، بالتنسيق مع المالية.','التطوير والتدريب والمسارات المهنية والتعاقب.','لوحة مؤشرات رأس المال البشري وتقاريرها الدورية.']},
+    who:{on:true,title:'من نبحث عنه؟',must:['بكالوريوس أو ماجستير في الموارد البشرية أو إدارة الأعمال.','لا تقلّ خبرته عن ٧–١٠ سنوات في إدارة الموارد البشرية.','قيادة وتطوير فرق، ومعرفة عميقة بقوانين العمل العمانية.','القدرة على بناء ثقافة تربوية إيمانية.'],prefer:['خبرة في قطاع التعليم.']},
+    schedule:{on:false,items:[]},
+    branches:{on:false,rows:[]},
+    pay:{on:true,title:'الأجر',text:'وفق سلّم المجموعة للمستوى القيادي، ويُناقَش مع المرشحين في مرحلة العرض لا في الاستمارة.'},
+    growth:{on:false,items:[]},
+    kpis:{on:true,title:'كيف يُقاس نجاحك؟',items:['خفض نسبة الشغور','نسبة الاحتفاظ بالموظفين','رضا الموظفين','ساعات التدريب السنوية لكل موظف','نسبة تحقيق المعلمات للحد الأدنى في حفظ القرآن والبيان']},
+    values:{on:true,title:'خماسية السكينة في هذه الوظيفة',emph:['ibada','amal'],note:'الوظيفة تحمل قيم العبادة وقيم العمل، مع دعم قوي لجميع أعمدة الخماسية.'},
+    process:{on:true,title:'كيف نختار؟',items:[{k:'فرزٌ أوليّ',v:'بحسب الوصف الوظيفي المعتمد'},{k:'اختبار عملي (٩٠ دقيقة)',v:'تحليلٌ وأداةٌ وحالة، يُطبَّق على الجميع بالدرجات نفسها'},{k:'جلسة عمل استكشافية',v:'نناقش فيها تحديات حقيقية، لا أسئلة محفوظة'},{k:'القرار',v:'يصلك الردّ مهما كانت النتيجة'}]}
+  },
+  form:{
+    title:'استمارةُ التقدّم', lead:'أربع خطوات. نقرأ كل طلب كاملًا، فخذ وقتك.',
+    endpoint:'', maxMB:5, success:'نقرأ كل طلبٍ كاملًا. سيصلك الردّ بعد الفرز الأولي، قُبلتَ أو لم تُقبَل.',
+    consent:'أُقرّ بصحة ما أدخلتُ من بيانات ومرفقات، وأوافق على التحقق منها والتواصل مع المزكّين، واستخدامها لأغراض التوظيف فقط.',
+    steps:[
+      {title:'هويتك',fields:[{k:'name',req:true},{k:'nid',req:true},{k:'dob',req:true},{k:'nationality',req:true},{k:'whatsapp',req:true},{k:'email',req:true},{k:'gov',req:true}]},
+      {title:'مسيرتك',fields:[{k:'edu',req:true},{k:'major',req:true},{k:'exp',req:true},{k:'employer',req:true},{k:'cv',req:true},{k:'certs',req:true}]},
+      {title:'رؤيتك',fields:[{k:'essay',req:true,label:'تنضمّ إلى مجموعة تبني منظومتها من الصفر: ما أول ثلاثة قرارات ستسعى إلى حسمها في أول ٩٠ يومًا، ولماذا؟'},{k:'cover',req:false,label:'ما تريد أن نعرفه عنك ولم تقله سيرتُك',max:500}]},
+      {title:'المزكّون',fields:[{k:'ref1',req:true},{k:'ref2',req:true}]}
+    ]
+  }
+}
+};
+
+/* يجمع صفحة HTML مستقلة من الإعداد — يعمل في المتصفح (الأداة) وفي Node (البناء) */
+function assemble(C, CSS, CATALOG, ENGINE){
+  var ls = String.fromCharCode(0x2028), ps = String.fromCharCode(0x2029);
+  var json = JSON.stringify(C).replace(/</g,'\\u003c').split(ls).join('\\u2028').split(ps).join('\\u2029');
+  var safeJs = function(s){return s.replace(/<\/script/gi,'<\\/script')};
+  return '<!doctype html>\n<html lang="ar" dir="rtl">\n<head>\n<meta charset="utf-8">\n'
+   +'<meta name="viewport" content="width=device-width,initial-scale=1">\n'
+   +'<title>'+String(C.title||'وظيفة').replace(/</g,'&lt;')+'<\/title>\n'
+   +'<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n'
+   +'<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">\n'
+   +'<style>\n'+CSS+'\n<\/style>\n<\/head>\n<body>\n<div id="app"></div>\n'
+   +'<script>\n'+safeJs(CATALOG)+'\nwindow.CONFIG='+json+';\n<\/script>\n'
+   +'<script>\n'+safeJs(ENGINE)+'\n<\/script>\n<\/body>\n<\/html>\n';
+}
+
+
+var S = null, tier = 'light';
+function clone(o){return JSON.parse(JSON.stringify(o))}
+function $(id){return document.getElementById(id)}
+function el(tag,a,kids){var e=document.createElement(tag);a=a||{};Object.keys(a).forEach(function(k){if(k==='class')e.className=a[k];else if(k==='text')e.textContent=a[k];else if(k.slice(0,2)==='on')e.addEventListener(k.slice(2),a[k]);else if(a[k]===true)e.setAttribute(k,'');else if(a[k]!==false&&a[k]!=null)e.setAttribute(k,a[k])});(kids||[]).forEach(function(c){if(c)e.appendChild(typeof c==='string'?document.createTextNode(c):c)});return e}
+function toast(m){var t=$('toast');t.textContent=m;t.classList.add('on');setTimeout(function(){t.classList.remove('on')},1800)}
+var timer;function preview(){clearTimeout(timer);timer=setTimeout(function(){$('pv').srcdoc=assemble(S,CSS,CATALOG,ENGINE)},250)}
+
+function normalize(c){
+  c.blocks=c.blocks||{}; BLOCKS.forEach(function(b){c.blocks[b.k]=Object.assign({on:false},c.blocks[b.k]||{})});
+  c.form=c.form||{steps:[]}; c.chips=c.chips||[]; return c;
+}
+function load(t){tier=t;S=normalize(clone(PRESETS[t]));renderPanel();preview()}
+
+/* ---- تحويلات النص ---- */
+function linesOf(v){return String(v||'').split('\n').map(function(x){return x.trim()}).filter(Boolean)}
+function pairsToText(arr,ka,kb){return (arr||[]).map(function(r){return r[ka]+(r[kb]!==''&&r[kb]!=null?': '+r[kb]:'')}).join('\n')}
+function textToPairs(t,ka,kb){return linesOf(t).map(function(l){var i=l.search(/[:：]/);return i<0?(function(){var o={};o[ka]=l;o[kb]='';return o})():(function(){var o={};o[ka]=l.slice(0,i).trim();o[kb]=l.slice(i+1).trim();return o})()})}
+
+/* ---- اللوحة ---- */
+function renderPanel(){
+  var P=$('panel'); P.innerHTML='';
+  /* 1 النوع */
+  var types=el('div',{class:'types'});
+  Object.keys(PRESET_META).forEach(function(k){var m=PRESET_META[k];
+    types.appendChild(el('button',{class:'type'+(k===tier?' on':''),type:'button',onclick:function(){if(k===tier||confirm('تحميل قالب «'+m.name+'» سيستبدل تعديلاتك الحالية. متابعة؟'))load(k)}},[el('b',{text:m.name}),el('small',{text:m.desc}),el('em',{text:m.ex})]))});
+  P.appendChild(el('section',{class:'sec'},[el('h2',{text:'١ — نوع الوظيفة'}),el('p',{text:'كل نوع يبدأ بقدرٍ مختلف من التفاصيل والحقول، وتعدّله كما تشاء.'}),types]));
+
+  /* 2 الأساسيات */
+  var b2=el('section',{class:'sec'},[el('h2',{text:'٢ — الأساسيات'})]);
+  function txt(label,get,set,area){var i=el(area?'textarea':'input',{class:'in',type:'text'});i.value=get();i.addEventListener('input',function(){set(i.value);preview()});return el('div',{},[el('label',{class:'l',text:label}),i])}
+  b2.appendChild(txt('المسمى الوظيفي',function(){return S.title},function(v){S.title=v}));
+  b2.appendChild(txt('سطر تعريفي تحت المسمى',function(){return S.subtitle||''},function(v){S.subtitle=v}));
+  b2.appendChild(txt('الجهة / الفرع',function(){return S.unit||''},function(v){S.unit=v}));
+  b2.appendChild(txt('بيانات سريعة في الأعلى (سطر لكل بيان — «العنوان: القيمة»)',function(){return pairsToText(S.chips,'k','v')},function(v){S.chips=textToPairs(v,'k','v')},true));
+  b2.appendChild(txt('آخر موعد للتقديم (اختياري)',function(){return S.deadline||''},function(v){S.deadline=v}));
+  b2.appendChild(txt('معرّف الوظيفة (إنجليزي بلا مسافات)',function(){return S.id},function(v){S.id=v.replace(/[^\w-]/g,'')}));
+  var dr=el('input',{type:'checkbox'});dr.checked=!!S.draft;dr.onchange=function(){S.draft=dr.checked;preview()};
+  b2.appendChild(el('label',{class:'ck',style:'margin-top:10px'},[dr,'إظهار شريط «نسخة تجريبية» (أوقفه عند النشر)']));
+  b2.appendChild(txt('عنوان استلام الطلبات (رابط الخادم). فارغ = وضع تجريبي لا يُرسل شيئًا',function(){return S.form.endpoint||''},function(v){S.form.endpoint=v.trim()}));
+  P.appendChild(b2);
+
+  /* 3 الأقسام */
+  var b3=el('section',{class:'sec'},[el('h2',{text:'٣ — أقسام الصفحة'}),el('p',{text:'شغّل ما تحتاجه وأطفئ الباقي. الوظيفة اليسيرة تكتفي بقسمين أو ثلاثة.'})]);
+  BLOCKS.forEach(function(d){
+    var b=S.blocks[d.k], body=el('div',{class:'body',hidden:!b.on}), sw=el('input',{type:'checkbox','aria-label':'تفعيل '+d.t});sw.checked=!!b.on;
+    sw.onchange=function(){b.on=sw.checked;body.hidden=!b.on;preview()};
+    var tin=el('input',{class:'in',type:'text',placeholder:d.t});tin.value=b.title||'';tin.oninput=function(){b.title=tin.value;preview()};
+    body.appendChild(el('label',{class:'l',text:'عنوان القسم'}));body.appendChild(tin);
+    function area(label,get,set,hint){var a=el('textarea',{class:'in'});a.value=get();a.oninput=function(){set(a.value);preview()};body.appendChild(el('label',{class:'l',text:label}));body.appendChild(a);if(hint)body.appendChild(el('div',{class:'hint',text:hint}))}
+    if(d.kind==='text') area('النص',function(){return b.text||''},function(v){b.text=v});
+    if(d.kind==='lines') area('بند في كل سطر',function(){return (b.items||[]).join('\n')},function(v){b.items=linesOf(v)});
+    if(d.kind==='who'){area('لا بدّ منه (سطر لكل شرط)',function(){return (b.must||[]).join('\n')},function(v){b.must=linesOf(v)});area('يُقدَّم من عنده (اختياري)',function(){return (b.prefer||[]).join('\n')},function(v){b.prefer=linesOf(v)})}
+    if(d.kind==='pairs'){
+      if(d.k==='branches') area('فرع في كل سطر — «الاسم: عدد المقاعد»',function(){return pairsToText(b.rows,'name','seats')},function(v){b.rows=textToPairs(v,'name','seats')},'حقل «الفرع المفضّل» في الاستمارة يأخذ هذه الأسماء تلقائيًّا.');
+      else area('سطر لكل بند — «العنوان: التفصيل»',function(){return pairsToText(b.items,'k','v')},function(v){b.items=textToPairs(v,'k','v')});
+    }
+    if(d.kind==='values'){
+      var w=el('div',{class:'row',style:'flex-wrap:wrap;margin-top:6px'});
+      PILLARS.forEach(function(p){var c=el('input',{type:'checkbox'});c.checked=(b.emph||[]).indexOf(p.id)>-1;c.onchange=function(){b.emph=PILLARS.filter(function(q){return q.id===p.id?c.checked:(b.emph||[]).indexOf(q.id)>-1}).map(function(q){return q.id});preview()};w.appendChild(el('label',{class:'ck'},[c,p.n]))});
+      body.appendChild(el('label',{class:'l',text:'الأعمدة التي تتأكد عليها هذه الوظيفة'}));body.appendChild(w);
+      area('جملة توضيحية (اختياري)',function(){return b.note||''},function(v){b.note=v});
+    }
+    b3.appendChild(el('div',{class:'blk'},[el('div',{class:'hd'},[el('b',{text:d.t}),el('label',{class:'sw'},[sw,el('i')])]),body]));
+  });
+  P.appendChild(b3);
+
+  /* 4 الاستمارة */
+  var b4=el('section',{class:'sec'},[el('h2',{text:'٤ — حقول الاستمارة'}),el('p',{text:'كل خطوة شاشة مستقلة للمتقدّم. اجعل الحقول بقدر الحاجة؛ ما يُطلب بعد القبول لا يُطلب الآن.'})]);
+  var steps=S.form.steps;
+  steps.forEach(function(st,si){
+    var box=el('div',{class:'step'});
+    var ti=el('input',{class:'in',type:'text',placeholder:'عنوان الخطوة'});ti.value=st.title||'';ti.oninput=function(){st.title=ti.value;preview()};
+    box.appendChild(el('div',{class:'row'},[ti,steps.length>1?el('button',{class:'b sm x',type:'button',text:'حذف الخطوة',onclick:function(){if(confirm('حذف الخطوة وحقولها؟')){steps.splice(si,1);renderPanel();preview()}}}):null]));
+    st.fields.forEach(function(f,fi){
+      var def=f.k?FIELDS[f.k]:null, r=el('div',{class:'fld'+(f.h?' h':'')});
+      var nm=el('div',{class:'nm'});
+      if(f.h){var hi=el('input',{class:'in',type:'text'});hi.value=f.h;hi.oninput=function(){f.h=hi.value;preview()};nm.appendChild(hi)}
+      else{var li=el('input',{class:'in',type:'text',placeholder:def?def.label:f.k});li.value=f.label||'';li.title='تعديل نص السؤال (اتركه فارغًا لاستخدام النص الافتراضي)';li.oninput=function(){f.label=li.value||undefined;preview()};nm.appendChild(li);nm.appendChild(el('small',{text:def?def.group+' — '+def.label:f.k}))}
+      r.appendChild(nm);
+      if(f.gate) r.appendChild(el('span',{class:'gate',text:'شرط حاسم'}));
+      if(!f.h){var rq=el('input',{type:'checkbox'});rq.checked=!!f.req;rq.onchange=function(){f.req=rq.checked;preview()};r.appendChild(el('label',{class:'ck'},[rq,'إلزامي']))}
+      r.appendChild(el('button',{class:'b sm',type:'button','aria-label':'أعلى',text:'↑',onclick:function(){if(fi>0){var t=st.fields[fi-1];st.fields[fi-1]=st.fields[fi];st.fields[fi]=t;renderPanel();preview()}}}));
+      r.appendChild(el('button',{class:'b sm',type:'button','aria-label':'أسفل',text:'↓',onclick:function(){if(fi<st.fields.length-1){var t=st.fields[fi+1];st.fields[fi+1]=st.fields[fi];st.fields[fi]=t;renderPanel();preview()}}}));
+      r.appendChild(el('button',{class:'b sm x',type:'button','aria-label':'حذف',text:'×',onclick:function(){st.fields.splice(fi,1);renderPanel();preview()}}));
+      box.appendChild(r);
+    });
+    var sel=el('select',{class:'in','aria-label':'إضافة حقل'},[el('option',{value:'',text:'+ إضافة حقل…'})]);
+    var used={};st.fields.forEach(function(f){if(f.k)used[f.k]=1});
+    var groups={};Object.keys(FIELDS).forEach(function(k){(groups[FIELDS[k].group]=groups[FIELDS[k].group]||[]).push(k)});
+    Object.keys(groups).forEach(function(g){var og=el('optgroup',{label:g});groups[g].forEach(function(k){og.appendChild(el('option',{value:k,text:FIELDS[k].label}))});sel.appendChild(og)});
+    sel.appendChild(el('option',{value:'__h',text:'— عنوان فرعي —'}));
+    sel.onchange=function(){var v=sel.value;if(!v)return;if(v==='__h')st.fields.push({h:'عنوان جديد'});else st.fields.push({k:v,req:false});renderPanel();preview()};
+    box.appendChild(el('div',{style:'margin-top:8px'},[sel]));
+    b4.appendChild(box);
+  });
+  b4.appendChild(el('button',{class:'b sm',type:'button',text:'+ خطوة جديدة',onclick:function(){steps.push({title:'خطوة جديدة',fields:[]});renderPanel();preview()}}));
+  P.appendChild(b4);
+  P.appendChild(el('section',{class:'sec'},[el('h2',{text:'٥ — الاستيراد'}),el('p',{text:'للصق إعداد محفوظ سابقًا (JSON).'}),(function(){var a=el('textarea',{class:'in',placeholder:'{ ... }'}),bt=el('button',{class:'b sm',type:'button',text:'استيراد',onclick:function(){try{var c=JSON.parse(a.value);S=normalize(c);tier=c.tier||tier;renderPanel();preview();toast('تم الاستيراد')}catch(e){toast('JSON غير صالح')}}});return el('div',{},[a,el('div',{style:'margin-top:6px'},[bt])])})()]));
+}
+
+$('dev').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;[].forEach.call($('dev').children,function(x){x.classList.toggle('on',x===b)});$('frame').style.maxWidth=b.getAttribute('data-w')==='100%'?'none':b.getAttribute('data-w')+'px'});
+$('bDl').onclick=function(){var s=clone(S);s.draft=!!S.draft;var blob=new Blob([assemble(s,CSS,CATALOG,ENGINE)],{type:'text/html;charset=utf-8'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=(S.id||'job')+'.html';document.body.appendChild(a);a.click();a.remove();toast('تم تنزيل الصفحة')};
+$('bJson').onclick=function(){var t=JSON.stringify(S,null,2);(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(function(){toast('نُسخ الإعداد')},function(){var a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();try{document.execCommand('copy');toast('نُسخ الإعداد')}catch(e){toast('تعذّر النسخ')}a.remove()})};
+load('light');
+
+</script>
+</body>
+</html>

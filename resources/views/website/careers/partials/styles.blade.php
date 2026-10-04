@@ -94,6 +94,13 @@
     .career-page .choice-grid{display:grid;gap:8px;margin-top:5px}
     .career-page .choice-pill{display:flex;align-items:center;gap:12px;border:1.5px solid #CFC8B5;border-radius:12px;padding:11px 14px;min-height:50px;font-weight:400}
     .career-page .application-upload{display:flex;align-items:center;gap:12px;flex-wrap:wrap;border:2px dashed #CFC8B5;border-radius:12px;padding:14px;background:#FCFBF7;margin-top:5px;font-weight:400}
+    .career-page .upload-input{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden}
+    .career-page .upload-button{display:inline-flex;align-items:center;min-height:44px;padding:10px 20px;border-radius:10px;background:var(--teal);color:#fff;font-weight:600;cursor:pointer}
+    .career-page .upload-input:focus-visible+.upload-button{outline:3px solid var(--teal-soft);outline-offset:2px}
+    .career-page .upload-status{flex:1 1 180px;font-weight:600;color:var(--muted);overflow-wrap:anywhere}
+    .career-page .upload-status.has-file{color:var(--teal)}
+    .career-page .upload-note{flex-basis:100%;font-size:13.5px;color:var(--muted);line-height:1.7}
+    .career-page .attachments-ok{color:var(--teal);font-weight:600}
     .career-page .application-actions{display:flex;gap:12px;justify-content:space-between;margin-top:24px;flex-wrap:wrap}
     .career-page .application-nav-button,.career-page .application-submit-button{font:inherit;font-weight:600;border:0;border-radius:12px;padding:12px 26px;min-height:48px;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
     .career-page .application-nav-button{background:#fff;color:var(--teal);border:1.5px solid var(--line)}

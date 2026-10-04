@@ -50,7 +50,7 @@ class CareerOpeningForm
                 TextInput::make('title')->label('المسمى الوظيفي')->required()->maxLength(255),
                 TextInput::make('slug')
                     ->label('الرابط (slug)')
-                    ->helperText('يظهر في /careers/{slug}')
+                    ->helperText('يظهر في /jobs/{slug}')
                     ->required()
                     ->alphaDash()
                     ->unique(ignoreRecord: true)
