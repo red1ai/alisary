@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>أداة بناء صفحة الوظيفة</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--teal:#1C463C;--teal-2:#2B6455;--teal-soft:#E4EEEA;--gold:#B8924A;--bg:#F1EEE6;--card:#fff;--ink:#1B2B26;--muted:#5A6A64;--line:#DDD6C4;--danger:#B3261E}
+*{box-sizing:border-box}
+:target,input,select,textarea,button{scroll-margin-top:80px}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans Arabic',Tahoma,sans-serif;font-size:15.5px;line-height:1.7;color-scheme:light}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px;border-radius:6px}
+.top{background:var(--teal);color:#fff;padding:12px 20px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;position:sticky;top:0;z-index:10}
+.top h1{font-size:18px;margin:0;font-weight:700}
+.top small{color:#CFE0D9}
+.top .sp{margin-inline-start:auto;display:flex;gap:8px;flex-wrap:wrap}
+.b{border:0;border-radius:10px;padding:8px 16px;cursor:pointer;font-weight:600;min-height:40px}
+.b.gold{background:var(--gold);color:#fff}.b.line{background:transparent;border:1.5px solid rgba(255,255,255,.45);color:#fff}
+.b.sm{padding:3px 10px;min-height:30px;font-size:14px;background:var(--teal-soft);color:var(--teal)}
+.b.x{background:#FCEBE9;color:var(--danger)}
+.main{display:grid;grid-template-columns:minmax(360px,470px) minmax(0,1fr);gap:16px;padding:16px;align-items:start}
+.panel{display:grid;gap:12px}
+.sec{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.sec>h2{font-size:16.5px;margin:0 0 8px;color:var(--teal)}
+.sec>p{margin:0 0 10px;color:var(--muted);font-size:14px}
+.types{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.type{border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;cursor:pointer;background:#fff;text-align:start}
+.type b{display:block;color:var(--teal)}.type small{color:var(--muted);display:block;line-height:1.5;font-size:13px}.type em{font-style:normal;color:var(--gold);font-size:12.5px}
+.type.on{border-color:var(--teal);background:var(--teal-soft)}
+label.l{display:block;font-weight:600;font-size:14px;margin:10px 0 3px}
+.in{width:100%;border:1.5px solid #CFC8B5;border-radius:9px;padding:7px 10px;background:#fff;min-height:38px}
+textarea.in{min-height:84px;resize:vertical;line-height:1.7}
+.row{display:flex;gap:8px;align-items:center}
+.blk{border-top:1px solid var(--line);padding:10px 0}
+.blk:first-of-type{border-top:0}
+.blk .hd{display:flex;align-items:center;gap:10px}
+.blk .hd b{flex:1}
+.sw{position:relative;width:42px;height:24px;flex:none}
+.sw input{position:absolute;inset:0;opacity:0;cursor:pointer;margin:0;width:100%;height:100%;z-index:1}
+.sw i{position:absolute;inset:0;background:#CFC8B5;border-radius:12px;transition:.15s}
+.sw i::after{content:"";position:absolute;top:3px;inset-inline-end:3px;width:18px;height:18px;background:#fff;border-radius:50%;transition:.15s}
+.sw input:checked+i{background:var(--teal-2)}.sw input:checked+i::after{inset-inline-end:21px}
+.sw input:focus-visible+i{outline:3px solid var(--gold)}
+.body{margin-top:6px}.body[hidden]{display:none}
+.hint{font-size:13px;color:var(--muted)}
+.step{border:1.5px solid var(--line);border-radius:12px;padding:10px;margin:8px 0;background:#FCFBF7}
+.fld{display:flex;align-items:center;gap:6px;padding:5px 0;border-bottom:1px dashed var(--line);flex-wrap:wrap}
+.fld:last-child{border-bottom:0}
+.fld .nm{flex:1;min-width:140px;font-size:14px}
+.fld .nm small{display:block;color:var(--muted);font-size:12px}
+.fld.h .nm{font-weight:700;color:var(--teal)}
+.gate{color:#7A5200;background:#FFF4D6;border-radius:6px;padding:0 6px;font-size:12px}
+.ck{display:flex;align-items:center;gap:4px;font-size:13px;white-space:nowrap}
+.pv{position:sticky;top:96px}
+.pvbar{display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap}
+.seg{display:inline-flex;border:1.5px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
+.seg button{border:0;background:none;padding:6px 14px;cursor:pointer}
+.seg button.on{background:var(--teal);color:#fff}
+.frame{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;margin:0 auto;height:calc(100vh - 175px);min-height:520px;transition:max-width .2s}
+.frame iframe{width:100%;height:100%;border:0;display:block}
+.toast{position:fixed;bottom:18px;inset-inline-start:18px;background:var(--teal);color:#fff;border-radius:10px;padding:10px 16px;z-index:50;opacity:0;transition:.2s;pointer-events:none}
+.toast.on{opacity:1}
+@media(max-width:980px){.main{grid-template-columns:1fr}.pv{position:static}.frame{height:70vh}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div><h1>أداة بناء صفحة الوظيفة</h1><small>اختر النوع، ثم أضف الأقسام والحقول أو احذفها، وانظر النتيجة مباشرة</small></div>
+  <div class="sp">
+    <button class="b line" id="bJson">نسخ الإعداد (JSON)</button>
+    <button class="b gold" id="bDl">تنزيل الصفحة HTML</button>
+  </div>
+</header>
+<div class="main">
+  <div class="panel" id="panel"></div>
+  <div class="pv">
+    <div class="pvbar"><div class="seg" id="dev"><button data-w="420" class="on">جوال</button><button data-w="100%">حاسوب</button></div><span class="hint">المعاينة تتحدّث تلقائيًّا. الإرسال في المعاينة تجريبي.</span></div>
+    <div class="frame" id="frame" style="max-width:420px"><iframe id="pv" title="معاينة الصفحة"></iframe></div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+<script>
+var CSS = /*{{CSS}}*/;
+var CATALOG = /*{{CATALOG}}*/;
+var ENGINE = /*{{ENGINE}}*/;
+/*{{CATALOG_SRC}}*/
+/*{{PRESETS_SRC}}*/
+/*{{ASSEMBLE_SRC}}*/
+
+/*{{BUILDER_UI}}*/
+</script>
+</body>
+</html>

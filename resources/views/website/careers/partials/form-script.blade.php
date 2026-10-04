@@ -198,7 +198,19 @@
             refreshGates();
         });
 
+        function describeFiles(input) {
+            var status = input.closest('[data-upload]').querySelector('[data-upload-status]');
+            var files = [].slice.call(input.files || []);
+            if (!files.length) { status.textContent = status.getAttribute('data-empty'); status.classList.remove('has-file'); return; }
+            status.textContent = 'تم اختيار: ' + files.map(function (f) {
+                var kb = f.size / 1024;
+                return f.name + ' (' + (kb >= 1024 ? Math.round(kb / 102.4) / 10 + ' ميجابايت' : Math.max(1, Math.round(kb)) + ' كيلوبايت') + ')';
+            }).join('، ') + ' — سيُرفع عند إرسال الطلب.';
+            status.classList.add('has-file');
+        }
+
         form.addEventListener('change', function (event) {
+            if (event.target.type === 'file' && event.target.closest('[data-upload]')) { describeFiles(event.target); }
             var w = event.target.closest && event.target.closest('[data-cf]');
             if (w) { validateField(w); }
             refreshGates();

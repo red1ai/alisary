@@ -46,7 +46,7 @@ beforeEach(function () {
 });
 
 it('renders the executive template sections and keeps disabled sections hidden', function () {
-    $this->get(route('careers.show', $this->opening))
+    $this->get(route('jobs.show', $this->opening))
         ->assertSuccessful()
         ->assertSee('نسخة تجريبية — راجِع النصوص والشروط قبل النشر')
         ->assertSee('مدرسة القارئ العبقري · الإدارة التنفيذية')
@@ -65,7 +65,7 @@ it('renders the executive template sections and keeps disabled sections hidden',
 });
 
 it('renders the four template steps in a stepper with identity fields in template order', function () {
-    $html = $this->get(route('careers.show', $this->opening))->assertSuccessful()->getContent();
+    $html = $this->get(route('jobs.show', $this->opening))->assertSuccessful()->getContent();
 
     foreach (['هويتك', 'مسيرتك', 'رؤيتك', 'المزكّون'] as $title) {
         expect($html)->toContain('<span>'.$title.'</span>');
@@ -128,7 +128,7 @@ it('shows the template success screen with the application reference', function 
     Storage::fake('local');
 
     $this->followingRedirects()
-        ->from(route('careers.show', $this->opening))
+        ->from(route('jobs.show', $this->opening))
         ->post(route('careers.apply', $this->opening), executivePayload())
         ->assertSuccessful()
         ->assertSee('وصلَنا طلبُك')
@@ -144,7 +144,7 @@ it('exposes eligibility rules to the form so gates can show before submission', 
         ['field' => 'years_experience', 'operator' => 'min', 'value' => 5, 'message' => 'شرط تجريبي: خبرة لا تقل عن 5 سنوات.'],
     ])->create();
 
-    $html = $this->get(route('careers.show', $opening))->assertSuccessful()->getContent();
+    $html = $this->get(route('jobs.show', $opening))->assertSuccessful()->getContent();
 
     expect($html)->toContain('data-gates=')
         ->and($html)->toContain('years_experience')

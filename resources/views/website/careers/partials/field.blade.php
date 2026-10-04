@@ -76,8 +76,11 @@
                 @endforeach
             </select>
         @elseif ($type === 'file')
-            <span class="application-upload">
-                <input type="file" id="{{ $inputId }}" name="{{ $name }}" @if ($accepted) accept="{{ $accepted }}" @endif @if ($multiple) multiple @endif aria-describedby="{{ $describedBy }}">
+            <span class="application-upload" data-upload>
+                <input type="file" class="upload-input" id="{{ $inputId }}" name="{{ $name }}" @if ($accepted) accept="{{ $accepted }}" @endif @if ($multiple) multiple @endif aria-describedby="{{ $describedBy }} u_{{ $key }}">
+                <label for="{{ $inputId }}" class="upload-button">{{ $multiple ? 'اختر الملفات' : 'اختر ملفًا' }}</label>
+                <span class="upload-status" id="u_{{ $key }}" data-upload-status data-empty="لم يتم اختيار ملف بعد" aria-live="polite">لم يتم اختيار ملف بعد</span>
+                <span class="upload-note">سيُرفع الملف عند إرسال الطلب.@if ($accepted) الصيغ المقبولة: {{ str_replace(',', '، ', $accepted) }}.@endif الحد الأقصى {{ round($maxKb / 1024, 1) }} ميجابايت للملف.</span>
             </span>
         @else
             <input

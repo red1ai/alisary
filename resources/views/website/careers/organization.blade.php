@@ -24,7 +24,7 @@
         <main>
             <div class="wrap org-list">
                 @forelse ($openings as $opening)
-                    <a class="org-card" href="{{ route('careers.show', $opening) }}">
+                    <a class="org-card" href="{{ route('jobs.show', $opening) }}">
                         <h2>{{ $opening->title }}</h2>
                         @if (filled($opening->summary))
                             <p>{{ \Illuminate\Support\Str::limit($opening->summary, 160) }}</p>

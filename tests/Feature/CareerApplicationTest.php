@@ -31,10 +31,10 @@ function careerPayload(array $overrides = []): array
 it('hides draft openings from guests but lets signed-in admins preview them', function () {
     $opening = CareerOpening::factory()->draft()->create();
 
-    $this->get(route('careers.show', $opening))->assertNotFound();
+    $this->get(route('jobs.show', $opening))->assertNotFound();
 
     $this->actingAs(User::factory()->create())
-        ->get(route('careers.show', $opening))
+        ->get(route('jobs.show', $opening))
         ->assertSuccessful()
         ->assertSee('معاينة للإدارة فقط');
 });
@@ -42,7 +42,7 @@ it('hides draft openings from guests but lets signed-in admins preview them', fu
 it('renders a published opening with its configured fields', function () {
     $opening = CareerOpening::factory()->create();
 
-    $this->get(route('careers.show', $opening))
+    $this->get(route('jobs.show', $opening))
         ->assertSuccessful()
         ->assertSee($opening->title)
         ->assertSee('سنوات الخبرة')
@@ -52,7 +52,7 @@ it('renders a published opening with its configured fields', function () {
 it('does not accept applications for a published opening without approved content', function () {
     $opening = CareerOpening::factory()->create(['form_sections' => [], 'description' => null]);
 
-    $this->get(route('careers.show', $opening))->assertSuccessful()->assertSee('سيُفتح باب التقديم')->assertDontSee('name="full_name"', false);
+    $this->get(route('jobs.show', $opening))->assertSuccessful()->assertSee('سيُفتح باب التقديم')->assertDontSee('name="full_name"', false);
     $this->post(route('careers.apply', $opening), careerPayload())->assertNotFound();
 
     expect(CareerApplication::count())->toBe(0);
@@ -153,11 +153,11 @@ it('seeds the Ibra principal opening as a hidden draft with title, entity and lo
         ->and($opening->isPublished())->toBeFalse()
         ->and($opening->isAcceptingSubmissions())->toBeFalse();
 
-    $this->get(route('careers.show', $opening))->assertNotFound();
+    $this->get(route('jobs.show', $opening))->assertNotFound();
     $this->post(route('careers.apply', $opening), careerPayload())->assertNotFound();
 
     $this->actingAs(User::factory()->create())
-        ->get(route('careers.show', $opening))
+        ->get(route('jobs.show', $opening))
         ->assertSuccessful()
         ->assertSee('مديرة مدرسة القارئ العبقري')
         ->assertSee('معاينة للإدارة فقط');
@@ -183,7 +183,7 @@ it('renders only the enabled page blocks with their content', function () {
         ],
     ]);
 
-    $this->get(route('careers.show', $opening))
+    $this->get(route('jobs.show', $opening))
         ->assertSuccessful()
         ->assertSee('سطر تعريفي')
         ->assertSee('دوام كامل')
@@ -268,11 +268,11 @@ it('lets admins list openings and view applications in Filament', function () {
 it('shows share buttons built from the public APP_URL for a published opening', function () {
     config(['app.url' => 'https://alisary.example.org']);
     $opening = CareerOpening::factory()->create(['title' => 'مديرة & مدرسة']);
-    $url = 'https://alisary.example.org/careers/'.$opening->slug;
+    $url = 'https://alisary.example.org/jobs/'.$opening->slug;
 
     expect($opening->shareUrl())->toBe($url);
 
-    $this->get('http://127.0.0.1:8000/careers/'.$opening->slug)
+    $this->get('http://127.0.0.1:8000/jobs/'.$opening->slug)
         ->assertSuccessful()
         ->assertSee('data-career-share', false)
         ->assertSee('data-share-url="'.$url.'"', false)
@@ -307,7 +307,7 @@ it('never offers a local or private address for sharing', function () {
     }
 
     config(['app.url' => 'http://localhost']);
-    $this->get(route('careers.show', $opening))->assertSuccessful()->assertDontSee('data-career-share', false);
+    $this->get(route('jobs.show', $opening))->assertSuccessful()->assertDontSee('data-career-share', false);
 });
 
 it('hides share buttons on draft previews and unpublished openings', function () {
@@ -317,7 +317,7 @@ it('hides share buttons on draft previews and unpublished openings', function ()
     expect($draft->shareUrl())->toBeNull();
 
     $this->actingAs(User::factory()->create())
-        ->get(route('careers.show', $draft))
+        ->get(route('jobs.show', $draft))
         ->assertSuccessful()
         ->assertSee('معاينة للإدارة فقط')
         ->assertDontSee('data-career-share', false)

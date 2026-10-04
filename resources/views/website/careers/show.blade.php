@@ -162,6 +162,9 @@
                             </div>
                             <h3>وصلَنا طلبُك</h3>
                             <p>{{ $opening->success_message ?: 'تم استلام طلبكم بنجاح، وسيتواصل معكم الفريق عند الحاجة.' }}</p>
+                            @if (session('application_files_count'))
+                                <p class="attachments-ok">تم إرفاق ملفاتك بنجاح ({{ session('application_files_count') }}).</p>
+                            @endif
                             @if (session('application_reference'))
                                 <p class="reference">رقم طلبك: <bdi dir="ltr">{{ session('application_reference') }}</bdi></p>
                             @endif

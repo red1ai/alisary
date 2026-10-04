@@ -24,5 +24,10 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('viewLogViewer', function (?User $user): bool {
             return $user !== null;
         });
+
+        // Every panel user is an administrator today (no roles); this is the single place to narrow it.
+        Gate::define('useJobPageBuilder', function (?User $user): bool {
+            return $user !== null;
+        });
     }
 }

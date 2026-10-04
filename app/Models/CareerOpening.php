@@ -143,7 +143,7 @@ class CareerOpening extends Model
             return null;
         }
 
-        $url = rtrim((string) config('app.url'), '/').route('careers.show', $this, false);
+        $url = rtrim((string) config('app.url'), '/').route('jobs.show', $this, false);
 
         return CareerShare::isPublicUrl($url) ? $url : null;
     }

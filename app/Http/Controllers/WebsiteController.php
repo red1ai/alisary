@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\ListingLocation;
+use App\Models\CareerOpening;
 use App\Models\Company;
 use App\Models\JobFamily;
 use App\Models\JobListing;
@@ -104,8 +105,16 @@ class WebsiteController extends Controller
         ]);
     }
 
-    public function showJob(GeneralSettings $settings, JobListing $jobListing): View
+    public function showJob(GeneralSettings $settings, string $slug): View
     {
+        $careerOpening = CareerOpening::where('slug', $slug)->first();
+
+        if ($careerOpening !== null) {
+            return app(CareerOpeningController::class)->show($settings, $careerOpening);
+        }
+
+        $jobListing = JobListing::where('slug', $slug)->firstOrFail();
+
         abort_unless($jobListing->isAcceptingSubmissions(), 404);
 
         return view('website.listings.show', [
