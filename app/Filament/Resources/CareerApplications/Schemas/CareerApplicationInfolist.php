@@ -20,9 +20,15 @@ class CareerApplicationInfolist
                 TextEntry::make('created_at')->label('تاريخ التقديم')->dateTime(),
                 KeyValueEntry::make('answers')
                     ->label('الإجابات')
-                    ->state(fn ($record): array => collect($record->answers ?? [])
-                        ->map(fn ($value): string => is_array($value) ? implode('، ', $value) : (string) $value)
-                        ->all())
+                    ->state(function ($record): array {
+                        $labels = collect($record->careerOpening?->fields() ?? [])->pluck('label', 'key');
+
+                        return collect($record->answers ?? [])
+                            ->mapWithKeys(fn ($value, $key): array => [
+                                (string) ($labels[$key] ?? $key) => is_array($value) ? implode('، ', $value) : (string) $value,
+                            ])
+                            ->all();
+                    })
                     ->columnSpanFull(),
             ]);
     }
