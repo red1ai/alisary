@@ -25,7 +25,7 @@
 @endphp
 
 @if ($type === 'radio' || $type === 'checkbox_list')
-    <fieldset class="form-field" data-cf="{{ $key }}" data-type="{{ $type }}" data-required="{{ $required ? 1 : 0 }}" aria-describedby="{{ $describedBy }}">
+    <fieldset class="form-field" data-cf="{{ $key }}" data-type="{{ $type }}" data-required="{{ $required ? 1 : 0 }}" @if ($type === 'checkbox_list' && filled($field['max_choices'] ?? null)) data-max-choices="{{ (int) $field['max_choices'] }}" @endif aria-describedby="{{ $describedBy }}">
         <legend>{{ $label }} @if ($required)<b aria-hidden="true">*</b>@else<span class="opt">(اختياري)</span>@endif</legend>
         <span class="choice-grid">
             @foreach ($options as $option)

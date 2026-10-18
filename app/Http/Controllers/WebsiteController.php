@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\CareerCategory;
+use App\Enums\ListingLocation;
 use App\Models\CareerOpening;
 use App\Models\CareerOrganization;
 use App\Models\Company;
@@ -72,10 +73,11 @@ class WebsiteController extends Controller
         $schoolBranchOptions = $schoolOrganization === null
             ? collect()
             : $openings
-                ->filter(fn (CareerOpening $opening): bool => $opening->career_organization_id === $schoolOrganization->id && $opening->location !== null)
-                ->map(fn (CareerOpening $opening): array => [
-                    'value' => $opening->location->value,
-                    'label' => $opening->location->label(),
+                ->filter(fn (CareerOpening $opening): bool => $opening->career_organization_id === $schoolOrganization->id)
+                ->flatMap(fn (CareerOpening $opening): array => $opening->branchLocations())
+                ->map(fn (ListingLocation $location): array => [
+                    'value' => $location->value,
+                    'label' => $location->label(),
                 ])
                 ->unique('value')
                 ->values();

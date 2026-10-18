@@ -71,6 +71,8 @@
                         : type === 'checkbox_list' ? 'اختر خيارًا واحدًا على الأقل.'
                         : 'هذا الحقل مطلوب.';
                 }
+            } else if (type === 'checkbox_list' && parseInt(w.getAttribute('data-max-choices'), 10) > 0 && v.length > parseInt(w.getAttribute('data-max-choices'), 10)) {
+                message = 'يمكنك اختيار ' + w.getAttribute('data-max-choices') + ' كحد أقصى.';
             } else if (type === 'file') {
                 var accept = (w.getAttribute('data-accept') || '').split(',').map(function (x) { return x.trim().toLowerCase(); }).filter(Boolean);
                 var maxBytes = (parseInt(w.getAttribute('data-max-kb'), 10) || 5120) * 1024;

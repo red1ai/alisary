@@ -123,6 +123,25 @@ class CareerOpening extends Model
         return filled($label) ? (string) $label : $default;
     }
 
+    /**
+     * Branches this opening belongs to: its single location, plus any branch named in its
+     * "branches" block (matched by branch label), so a school-wide opening shows under each branch filter.
+     *
+     * @return array<int, ListingLocation>
+     */
+    public function branchLocations(): array
+    {
+        $labels = collect(ListingLocation::cases())->mapWithKeys(fn (ListingLocation $case): array => [$case->label() => $case]);
+
+        return collect(($this->blocks['branches']['rows'] ?? []))
+            ->map(fn (array $row): ?ListingLocation => $labels->get(trim((string) ($row['name'] ?? ''))))
+            ->prepend($this->location)
+            ->filter()
+            ->unique(fn (ListingLocation $location): string => $location->value)
+            ->values()
+            ->all();
+    }
+
     public function hasApprovedContent(): bool
     {
         return count($this->fields()) > 0

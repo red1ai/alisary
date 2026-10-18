@@ -111,7 +111,8 @@
                                         @endif
                                         @break
                                     @case('rows')
-                                        <dl class="rows">@foreach ($data['rows'] as $row)@if (filled($row['name'] ?? null))<div><dt>{{ $row['name'] }}</dt><dd>@if (filled($row['seats'] ?? null)){{ \App\Support\NumberLocalizer::eastern($row['seats']) }} مقعد@endif</dd></div>@endif @endforeach</dl>
+                                        <dl class="rows">@foreach ($data['rows'] as $row)@if (filled($row['name'] ?? null))<div><dt>{{ $row['name'] }}</dt><dd>@if (filled($row['seats'] ?? null)){{ \App\Support\NumberLocalizer::eastern($row['seats']) }} {{ filled($data['seat_label'] ?? null) ? $data['seat_label'] : 'مقعد' }}@endif</dd></div>@endif @endforeach</dl>
+                                        @if (filled($data['note'] ?? null))<p class="pillars-note">{{ $data['note'] }}</p>@endif
                                         @break
                                     @case('values')
                                         <div class="pillars">

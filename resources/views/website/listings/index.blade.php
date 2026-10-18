@@ -176,7 +176,7 @@
 
                         <div class="group flex flex-col justify-between overflow-hidden rounded-2xl border border-alisary-green/10 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl hover:shadow-alisary-green/5"
                             data-job-id="{{ $opening->id }}" data-company="{{ $organizationKey }}"
-                            data-branch="{{ $opening->location?->value }}"
+                            data-branch="{{ collect($opening->branchLocations())->pluck('value')->implode(' ') }}"
                             data-family="{{ $opening->category?->value }}" data-search="{{ e($searchText) }}">
                             <div class="flex h-2 w-full bg-alisary-green"></div>
                             <div class="flex-1 p-6">

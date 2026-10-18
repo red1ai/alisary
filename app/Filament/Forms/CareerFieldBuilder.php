@@ -76,6 +76,11 @@ class CareerFieldBuilder
                 ->addActionLabel('إضافة خيار')
                 ->visible($choices)
                 ->columnSpanFull(),
+            TextInput::make('max_choices')
+                ->label('أقصى عدد خيارات يمكن اختيارها')
+                ->numeric()
+                ->minValue(1)
+                ->visible(fn (Get $get): bool => $get('type') === 'checkbox_list'),
             Select::make('accepted_file_types')
                 ->label('أنواع الملفات')
                 ->multiple()

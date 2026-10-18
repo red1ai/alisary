@@ -126,6 +126,8 @@ class CareerOpeningForm
             Section::make('الفروع والمقاعد')->collapsed()->schema([
                 $on('branches'),
                 $title('branches'),
+                TextInput::make('blocks.branches.seat_label')->label('كلمة بجانب العدد')->placeholder('مقعد'),
+                Textarea::make('blocks.branches.note')->label('ملاحظة تحت القائمة')->rows(2),
                 Repeater::make('blocks.branches.rows')->label('الفروع')->schema([
                     TextInput::make('name')->label('الفرع')->required(),
                     TextInput::make('seats')->label('المقاعد')->numeric(),

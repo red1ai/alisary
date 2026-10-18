@@ -63,6 +63,12 @@ class CareerForm
                 continue;
             }
 
+            if ($type === 'checkbox_list' && filled($field['max_choices'] ?? null)) {
+                $rules["answers.{$key}"][] = 'max:'.(int) $field['max_choices'];
+
+                continue;
+            }
+
             if ($type === 'file' && ($field['multiple'] ?? false)) {
                 $rules["files.{$key}"] = [$required ? 'required' : 'nullable', 'array', 'max:10'];
                 $rules["files.{$key}.*"] = CustomFormFields::rulesForType('file', $field);
