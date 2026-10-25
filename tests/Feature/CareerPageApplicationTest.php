@@ -3,7 +3,6 @@
 use App\Mail\CareerApplicationReceived;
 use App\Models\CareerApplication;
 use App\Models\CareerOpening;
-use App\Settings\GeneralSettings;
 use Database\Seeders\CareerOpeningSeeder;
 use Database\Seeders\DemoExecutiveHrOpeningSeeder;
 use Illuminate\Http\UploadedFile;
@@ -92,14 +91,11 @@ it('accepts several certificate files sent as certs[] and a single file sent as 
     expect(CareerApplication::orderBy('id')->get()->map(fn ($a) => count($a->files['certs']))->all())->toBe([3, 1]);
 });
 
-it('queues the internal notification when recipients are configured', function () {
-    $settings = app(GeneralSettings::class);
-    $settings->job_submission_recipients = [['email' => 'career@example.test']];
-    $settings->save();
-
+it('queues the internal notification to the career address', function () {
     $this->post(route('job-pages.apply'), pagePayload())->assertCreated();
 
-    Mail::assertQueued(CareerApplicationReceived::class, fn ($mail) => $mail->hasTo('career@example.test'));
+    Mail::assertQueued(CareerApplicationReceived::class, 1);
+    Mail::assertQueued(CareerApplicationReceived::class, fn ($mail) => $mail->hasTo('career@alisary.com'));
 });
 
 it('returns 422 json with page field names, never a redirect, when required data is missing', function () {

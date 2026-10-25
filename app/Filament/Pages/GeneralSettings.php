@@ -84,7 +84,8 @@ class GeneralSettings extends SettingsPage
                             ]),
                         Tab::make('إشعارات التقديم')
                             ->schema([
-                                Section::make('مستلمو طلبات الوظائف')
+                                Section::make('مستلمو تنبيهات الطلبات المكررة')
+                                    ->description('يُستخدم هذا الإعداد فقط لتنبيه «طلب مكرر محتمل» عند التقديم عبر النموذج الموحّد. لا يؤثر في إشعارات الطلبات الجديدة، فهي تُرسل دائمًا إلى العنوان المضبوط في إعدادات الخادم (CAREER_APPLICATIONS_NOTIFY_TO)، ولا في إشعار نشر الوظائف.')
                                     ->schema([
                                         Repeater::make('job_submission_recipients')
                                             ->label('البريد المستلم')

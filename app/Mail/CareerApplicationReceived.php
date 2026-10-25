@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Filament\Resources\CareerApplications\CareerApplicationResource;
 use App\Models\CareerApplication;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -28,6 +29,9 @@ class CareerApplicationReceived extends Mailable implements ShouldQueue
 
     public function content(): Content
     {
-        return new Content(markdown: 'emails.submissions.career-application-received');
+        return new Content(
+            markdown: 'emails.submissions.career-application-received',
+            with: ['adminUrl' => CareerApplicationResource::getUrl('view', ['record' => $this->application])],
+        );
     }
 }

@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\CareerCategory;
 use App\Enums\ListingLocation;
 use App\Enums\ListingStatus;
+use App\Mail\CareerOpeningPublished;
 use App\Support\CareerBlocks;
 use App\Support\CareerShare;
 use App\Support\CustomFormFields;
@@ -13,6 +14,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
 class CareerOpening extends Model
@@ -37,6 +39,31 @@ class CareerOpening extends Model
             'core_field_labels' => 'array',
             'identity_in_first_step' => 'boolean',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        $notify = function (CareerOpening $opening): void {
+            $to = config('career_notifications.publish_to');
+
+            if (filled($to)) {
+                Mail::to($to)->queue(new CareerOpeningPublished($opening));
+            }
+        };
+
+        static::created(function (CareerOpening $opening) use ($notify): void {
+            if ($opening->status === ListingStatus::Published) {
+                $notify($opening);
+            }
+        });
+
+        static::updated(function (CareerOpening $opening) use ($notify): void {
+            if ($opening->wasChanged('status')
+                && $opening->status === ListingStatus::Published
+                && $opening->getOriginal('status') !== ListingStatus::Published) {
+                $notify($opening);
+            }
+        });
     }
 
     public function company(): BelongsTo

@@ -30,9 +30,9 @@ class ListingSubmissionController extends Controller
             'files' => CustomFormFields::storeFiles($request, "submissions/jobs/{$jobListing->id}/files"),
         ]);
 
-        $recipients = $settings->jobSubmissionRecipientEmails();
+        $recipients = config('career_notifications.applications_to');
 
-        if ($recipients !== []) {
+        if (filled($recipients)) {
             Mail::to($recipients)->send(new JobSubmissionReceived($jobListing->loadMissing('company'), $submission));
         }
 

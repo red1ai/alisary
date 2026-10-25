@@ -4,7 +4,6 @@ use App\Enums\CustomFieldType;
 use App\Enums\ListingStatus;
 use App\Mail\JobSubmissionReceived;
 use App\Models\JobListing;
-use App\Settings\GeneralSettings;
 use App\Support\DefaultJobApplicationForm;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Mail;
@@ -49,17 +48,9 @@ test('visitor can submit a valid job application with default fields, cv, and cu
     Storage::disk('public')->assertExists($submission->files['portfolio']);
 });
 
-test('job submissions queue notifications to configured internal recipients', function () {
+test('job submissions queue a notification to the career address', function () {
     Storage::fake('public');
     Mail::fake();
-
-    $settings = app(GeneralSettings::class);
-    $settings->job_submission_recipients = [
-        ['email' => 'hr@example.com'],
-        ['email' => 'jobs@example.com'],
-    ];
-    $settings->tender_submission_recipients = [];
-    $settings->save();
 
     $jobListing = JobListing::factory()->create([
         'title' => 'Frontend Engineer',
@@ -82,20 +73,16 @@ test('job submissions queue notifications to configured internal recipients', fu
     $submission = $jobListing->submissions()->first();
 
     Mail::assertQueued(JobSubmissionReceived::class, function (JobSubmissionReceived $mail) use ($jobListing, $submission): bool {
-        return $mail->hasTo(['hr@example.com', 'jobs@example.com'])
+        return $mail->hasTo('career@alisary.com')
             && $mail->jobListing->is($jobListing)
             && $mail->submission->is($submission);
     });
 });
 
-test('job submissions do not queue notifications without configured recipients', function () {
+test('job submissions do not queue notifications when the career address is unset', function () {
     Storage::fake('public');
     Mail::fake();
-
-    $settings = app(GeneralSettings::class);
-    $settings->job_submission_recipients = [];
-    $settings->tender_submission_recipients = [];
-    $settings->save();
+    config(['career_notifications.applications_to' => null]);
 
     $jobListing = JobListing::factory()->create();
 

@@ -75,9 +75,9 @@ class JobApplicationController extends Controller
         if ($application->wasRecentlyCreated) {
             $this->notifyOnPossibleDuplicate($application, $settings);
 
-            $emails = $settings->jobSubmissionRecipientEmails();
-            if (! empty($emails)) {
-                Mail::to($emails)->queue(new JobSubmissionReceived($application));
+            $to = config('career_notifications.applications_to');
+            if (filled($to)) {
+                Mail::to($to)->queue(new JobSubmissionReceived($application));
             }
         }
 

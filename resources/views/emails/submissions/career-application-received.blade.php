@@ -10,5 +10,11 @@
 - الهاتف: {{ $application->phone }}
 - الرقم المرجعي: {{ $application->reference_number }}
 
+لا يتضمن هذا البريد الملفات المرفوعة.
+
 </div>
+
+<x-mail::button :url="$adminUrl" color="success">
+فتح الطلب
+</x-mail::button>
 </x-mail::message>

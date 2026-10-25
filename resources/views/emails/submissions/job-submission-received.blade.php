@@ -14,6 +14,12 @@
 <td style="padding:22px 24px;">
 <div style="margin-bottom:16px;font-size:13px;font-weight:700;color:#9C6842;">بيانات الطلب @if ($application instanceof \App\Models\JobApplication)({{ $application->reference_number }})@endif</div>
 <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+@if (! $jobListing && $application instanceof \App\Models\JobApplication && $application->firstPriorityJobTitle())
+<tr>
+<td style="padding:10px 0;border-bottom:1px solid #EADFCE;color:#756553;width:34%;">الوظيفة المطلوبة</td>
+<td style="padding:10px 0;border-bottom:1px solid #EADFCE;color:#201812;font-weight:700;">{{ $application->firstPriorityJobTitle() }}</td>
+</tr>
+@endif
 @if ($jobListing)
 <tr>
 <td style="padding:10px 0;border-bottom:1px solid #EADFCE;color:#756553;width:34%;">الوظيفة المطلوبة</td>

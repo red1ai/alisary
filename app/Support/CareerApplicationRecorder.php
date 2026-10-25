@@ -50,9 +50,9 @@ class CareerApplicationRecorder
             'files' => $files,
         ]);
 
-        $emails = $settings->jobSubmissionRecipientEmails();
-        if (! empty($emails)) {
-            Mail::to($emails)->queue(new CareerApplicationReceived($application));
+        $to = config('career_notifications.applications_to');
+        if (filled($to)) {
+            Mail::to($to)->queue(new CareerApplicationReceived($application));
         }
 
         return $application;
